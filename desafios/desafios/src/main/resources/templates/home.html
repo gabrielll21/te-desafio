@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{layout :: head}"></head>
+<body>
+    <nav th:replace="~{layout :: navbar}"></nav>
+    <main th:replace="~{layout :: main}">
+        <th:block th:fragment="content">
+        <div class="page-header">
+            <h1 class="page-title">
+                Bem-vindo,
+                <span th:text="${#authorization.expression('isAuthenticated()') ? 
+                      (#authentication?.name) : 'Usuário'}" 
+                      style="color: var(--accent);">Usuário</span>!
+            </h1>
+            <p class="page-subtitle">Desafie seus amigos e alcance novos objetivos juntos</p>
+        </div>
+
+        <div sec:authorize="isAuthenticated()">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value" th:text="${desafioCount != null ? desafioCount : '0'}">0</div>
+                    <div class="stat-label">Desafios</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" th:text="${amigoCount != null ? amigoCount : '0'}">0</div>
+                    <div class="stat-label">Amigos</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" th:text="${conviteCount != null ? conviteCount : '0'}">0</div>
+                    <div class="stat-label">Convites</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" th:text="${progressoCount != null ? progressoCount : '0'}">0</div>
+                    <div class="stat-label">Progressos</div>
+                </div>
+            </div>
+
+            <div class="action-buttons">
+                <a th:href="@{/desafios/novo}" class="btn btn-primary">
+                    ➕ Criar Novo Desafio
+                </a>
+                <a th:href="@{/desafios}" class="btn btn-secondary">
+                    📋 Ver Todos os Desafios
+                </a>
+                <a th:href="@{/friends}" class="btn btn-secondary">
+                    👥 Meus Amigos
+                </a>
+                <a th:href="@{/convites/recebidos}" class="btn btn-secondary">
+                    📨 Convites Recebidos
+                </a>
+            </div>
+
+            <div class="grid grid-2" style="margin-top: 2rem;">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Desafios Recentes</h3>
+                    </div>
+                    <div class="card-body">
+                        <p>Veja os desafios mais recentes criados pela comunidade.</p>
+                        <a th:href="@{/desafios}" class="btn btn-outline btn-sm">Ver Desafios →</a>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Meu Progresso</h3>
+                    </div>
+                    <div class="card-body">
+                        <p>Acompanhe seu progresso nos desafios que você está participando.</p>
+                        <a th:href="@{/perfil}" class="btn btn-outline btn-sm">Ver Perfil →</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div sec:authorize="!isAuthenticated()" class="card" style="max-width: 600px; margin: 0 auto;">
+            <div class="text-center" style="padding: 2rem;">
+                <h2 style="margin-bottom: 1rem;">Comece sua jornada de desafios!</h2>
+                <p style="margin-bottom: 2rem; color: var(--text-secondary);">
+                    Crie desafios personalizados, convide seus amigos e alcance seus objetivos juntos.
+                </p>
+                <div class="flex-center gap-1" style="flex-wrap: wrap;">
+                    <a th:href="@{/cadastro}" class="btn btn-primary btn-lg">Criar Conta</a>
+                    <a th:href="@{/login}" class="btn btn-outline btn-lg">Fazer Login</a>
+                </div>
+            </div>
+        </div>
+        </th:block>
+    </main>
+    <footer th:replace="~{layout :: footer}"></footer>
+</body>
+</html>

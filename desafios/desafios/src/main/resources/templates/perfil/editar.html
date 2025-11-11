@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout :: head}"></head>
+<body>
+    <nav th:replace="~{layout :: navbar}"></nav>
+    <main th:replace="~{layout :: main}">
+        <th:block th:fragment="content">
+        <div class="page-header">
+            <h1 class="page-title">Editar Perfil</h1>
+            <p class="page-subtitle">Atualize suas informações pessoais</p>
+        </div>
+
+        <div class="card" style="max-width: 600px; margin: 0 auto;">
+            <form th:action="@{/perfil}" th:object="${profileUpdateDTO}" method="post" enctype="multipart/form-data">
+                <div class="form-group">
+                    <label for="nome" class="form-label">Nome Completo</label>
+                    <input type="text" id="nome" th:field="*{nome}" class="form-input" 
+                           placeholder="Seu nome completo" required>
+                    <span class="form-error" th:if="${#fields.hasErrors('nome')}" 
+                          th:errors="*{nome}"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="avatar" class="form-label">Foto de Perfil (Opcional)</label>
+                    <input type="file" id="avatar" th:field="*{avatar}" class="form-input" 
+                           accept="image/*">
+                    <span class="form-help">Formatos aceitos: JPG, PNG, GIF (máx. 5MB)</span>
+                </div>
+
+                <div class="card-footer">
+                    <a th:href="@{/perfil}" class="btn btn-secondary">Cancelar</a>
+                    <button type="submit" class="btn btn-primary">Salvar Alterações</button>
+                </div>
+            </form>
+        </div>
+        </th:block>
+    </main>
+    <footer th:replace="~{layout :: footer}"></footer>
+</body>
+</html>

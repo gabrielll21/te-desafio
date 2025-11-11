@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{layout :: head}"></head>
+<body>
+    <nav th:replace="~{layout :: navbar}"></nav>
+    <main th:replace="~{layout :: main}">
+        <th:block th:fragment="content">
+            <div class="page-header">
+                <h1 class="page-title" th:text="${desafio.titulo}">Título do Desafio</h1>
+                <p class="page-subtitle" th:text="${desafio.descricao}">Descrição do desafio</p>
+            </div>
+
+            <div class="action-buttons">
+                <a th:href="@{/desafios}" class="btn btn-secondary">← Voltar para Lista</a>
+                <a th:href="@{|/desafios/${desafio.id}/progresso|}" class="btn btn-primary" sec:authorize="isAuthenticated()">Ver Progresso</a>
+                <a th:href="@{|/desafios/${desafio.id}/editar|}" 
+                   class="btn btn-outline" 
+                   sec:authorize="isAuthenticated()"
+                   th:if="${#authentication.principal.username == desafio.criador.email}">
+                    ✏️ Editar
+                </a>
+            </div>
+
+            <div class="grid grid-2" style="margin-top: 2rem;">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Informações do Desafio</h3>
+                    </div>
+                    <div class="card-body">
+                        <div style="margin-bottom: 1.5rem;">
+                            <label style="color: var(--text-secondary); font-size: 0.9rem; display: block; margin-bottom: 0.5rem;">Status</label>
+                            <span class="badge" 
+                                  th:classappend="${desafio.status.name() == 'ATIVO'} ? 'badge-success' : 
+                                                 (${desafio.status.name() == 'ENCERRADO'} ? 'badge-error' : 
+                                                 (${desafio.status.name() == 'ARQUIVADO'} ? 'badge-warning' : 'badge-primary'))"
+                                  th:text="${desafio.status}">Status</span>
+                        </div>
+                        <div style="margin-bottom: 1.5rem;">
+                            <label style="color: var(--text-secondary); font-size: 0.9rem; display: block; margin-bottom: 0.5rem;">Categoria</label>
+                            <p style="color: var(--text-primary); font-size: 1.1rem; font-weight: 500;" 
+                               th:text="${desafio.categoria.nome}">Categoria</p>
+                        </div>
+                        <div th:if="${desafio.subcategoria != null}" style="margin-bottom: 1.5rem;">
+                            <label style="color: var(--text-secondary); font-size: 0.9rem; display: block; margin-bottom: 0.5rem;">Subcategoria</label>
+                            <p style="color: var(--text-primary); font-size: 1.1rem; font-weight: 500;" 
+                               th:text="${desafio.subcategoria.nome}">Subcategoria</p>
+                        </div>
+                        <div style="margin-bottom: 1.5rem;">
+                            <label style="color: var(--text-secondary); font-size: 0.9rem; display: block; margin-bottom: 0.5rem;">Período</label>
+                            <p style="color: var(--text-primary); font-size: 1.1rem; font-weight: 500;">
+                                <span th:text="${#temporals.format(desafio.dataInicio, 'dd/MM/yyyy')}"></span> - 
+                                <span th:text="${#temporals.format(desafio.dataFinal, 'dd/MM/yyyy')}"></span>
+                            </p>
+                        </div>
+                        <div style="margin-bottom: 1.5rem;">
+                            <label style="color: var(--text-secondary); font-size: 0.9rem; display: block; margin-bottom: 0.5rem;">Dificuldade</label>
+                            <p style="color: var(--accent); font-size: 1.5rem; font-weight: 700;" 
+                               th:text="${desafio.dificuldade + '/10'}">5/10</p>
+                        </div>
+                        <div>
+                            <label style="color: var(--text-secondary); font-size: 0.9rem; display: block; margin-bottom: 0.5rem;">Pontuação Máxima</label>
+                            <p style="color: var(--accent); font-size: 1.5rem; font-weight: 700;" 
+                               th:text="${desafio.pontuacaoMaxima + ' pontos'}">100 pontos</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Criador do Desafio</h3>
+                    </div>
+                    <div class="card-body">
+                        <div style="margin-bottom: 1.5rem;">
+                            <label style="color: var(--text-secondary); font-size: 0.9rem; display: block; margin-bottom: 0.5rem;">Nome</label>
+                            <p style="color: var(--text-primary); font-size: 1.1rem; font-weight: 500;" 
+                               th:text="${desafio.criador.nome}">Nome do Criador</p>
+                        </div>
+                        <div style="margin-bottom: 1.5rem;">
+                            <label style="color: var(--text-secondary); font-size: 0.9rem; display: block; margin-bottom: 0.5rem;">Email</label>
+                            <p style="color: var(--text-secondary); font-size: 0.95rem;" 
+                               th:text="${desafio.criador.email}">email@exemplo.com</p>
+                        </div>
+                        <div>
+                            <label style="color: var(--text-secondary); font-size: 0.9rem; display: block; margin-bottom: 0.5rem;">Criado em</label>
+                            <p style="color: var(--text-muted); font-size: 0.85rem;" 
+                               th:text="${#temporals.format(desafio.createdAt, 'dd/MM/yyyy HH:mm')}">Data</p>
+                        </div>
+                    </div>
+                    <div class="card-footer" sec:authorize="isAuthenticated()">
+                        <form th:action="@{/convites/enviar}" method="post" style="display: inline;">
+                            <input type="hidden" name="desafioId" th:value="${desafio.id}">
+                            <input type="hidden" name="toUserId" th:value="${desafio.criador.id}">
+                            <button type="submit" class="btn btn-primary btn-sm" 
+                                    th:if="${#authentication.principal.username != desafio.criador.email}">
+                                📨 Enviar Convite
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </th:block>
+    </main>
+    <footer th:replace="~{layout :: footer}"></footer>
+</body>
+</html>
+

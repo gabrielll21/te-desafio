@@ -1,0 +1,12 @@
+/target/
+**/target/
+/data/
+/tmp/
+/logs/
+/*.log
+*.class
+*.jar
+*.war
+*.iml
+/.idea/
+/.vscode/

@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{layout :: head}"></head>
+<body>
+    <nav th:replace="~{layout :: navbar}"></nav>
+    <main th:replace="~{layout :: main}">
+        <th:block th:fragment="content">
+            <div class="page-header">
+                <h1 class="page-title">Desafios</h1>
+                <p class="page-subtitle">Explore e participe de desafios incríveis</p>
+            </div>
+
+            <div class="action-buttons">
+                <a th:href="@{/desafios/novo}" class="btn btn-primary">➕ Criar Novo Desafio</a>
+            </div>
+
+            <form th:action="@{/desafios}" method="get" class="card" style="margin-bottom: 2rem; padding: 1.5rem;">
+                <div class="grid grid-2">
+                    <div class="form-group">
+                        <label for="q" class="form-label">Buscar por título</label>
+                        <input type="text" id="q" name="q" class="form-input" 
+                               th:value="${param.q}" placeholder="Digite o título...">
+                    </div>
+                    <div class="form-group" th:if="${categorias != null}">
+                        <label for="categoriaId" class="form-label">Filtrar por categoria</label>
+                        <select id="categoriaId" name="categoriaId" class="form-select">
+                            <option value="">Todas as categorias</option>
+                            <option th:each="cat : ${categorias}" 
+                                    th:value="${cat.id}" 
+                                    th:text="${cat.nome}"
+                                    th:selected="${param.categoriaId != null and param.categoriaId == cat.id}">
+                                Categoria
+                            </option>
+                        </select>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary">🔍 Buscar</button>
+                <a th:href="@{/desafios}" class="btn btn-secondary">Limpar Filtros</a>
+            </form>
+
+            <div th:if="${desafios != null and desafios.hasContent()}" class="grid grid-2">
+                <div class="card" th:each="desafio : ${desafios.content}">
+                    <div class="card-header">
+                        <h3 class="card-title" th:text="${desafio.titulo}">Título do Desafio</h3>
+                        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 0.5rem;">
+                            <span class="badge badge-primary" th:text="${desafio.categoria.nome}">Categoria</span>
+                            <span class="badge" 
+                                  th:classappend="${desafio.status.name() == 'ATIVO'} ? 'badge-success' : 
+                                                 (${desafio.status.name() == 'ENCERRADO'} ? 'badge-error' : 
+                                                 (${desafio.status.name() == 'ARQUIVADO'} ? 'badge-warning' : 'badge-primary'))"
+                                  th:text="${desafio.status}">Status</span>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <p style="color: var(--text-secondary); margin-bottom: 1rem;" 
+                           th:text="${#strings.abbreviate(desafio.descricao, 150)}">Descrição</p>
+                        <div style="display: flex; gap: 1rem; flex-wrap: wrap; font-size: 0.85rem; color: var(--text-muted);">
+                            <span>📅 <span th:text="${#temporals.format(desafio.dataInicio, 'dd/MM/yyyy')}"></span> - 
+                                  <span th:text="${#temporals.format(desafio.dataFinal, 'dd/MM/yyyy')}"></span></span>
+                            <span>⭐ Dificuldade: <strong th:text="${desafio.dificuldade}"></strong>/10</span>
+                            <span>🏆 Pontos: <strong th:text="${desafio.pontuacaoMaxima}"></strong></span>
+                        </div>
+                        <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 0.5rem;">
+                            Criado por: <strong th:text="${desafio.criador.nome}"></strong>
+                        </p>
+                    </div>
+                    <div class="card-footer">
+                        <a th:href="@{|/desafios/${desafio.id}|}" class="btn btn-primary btn-sm">Ver Detalhes</a>
+                        <a th:href="@{|/desafios/${desafio.id}/progresso|}" class="btn btn-outline btn-sm" sec:authorize="isAuthenticated()">Ver Progresso</a>
+                    </div>
+                </div>
+            </div>
+
+            <div th:if="${desafios != null and desafios.hasContent()}" class="flex-center" style="margin-top: 2rem; gap: 1rem;">
+                <a th:if="${desafios.hasPrevious()}" 
+                   th:href="@{/desafios(page=${desafios.number - 1}, q=${param.q}, categoriaId=${param.categoriaId})}" 
+                   class="btn btn-secondary">← Anterior</a>
+                <span style="color: var(--text-secondary);">
+                    Página <strong th:text="${desafios.number + 1}"></strong> de 
+                    <strong th:text="${desafios.totalPages}"></strong>
+                </span>
+                <a th:if="${desafios.hasNext()}" 
+                   th:href="@{/desafios(page=${desafios.number + 1}, q=${param.q}, categoriaId=${param.categoriaId})}" 
+                   class="btn btn-secondary">Próxima →</a>
+            </div>
+
+            <div th:if="${desafios == null or !desafios.hasContent()}" class="empty-state">
+                <div class="empty-state-icon">📋</div>
+                <h3>Nenhum desafio encontrado</h3>
+                <p>Não há desafios disponíveis no momento.</p>
+                <a th:href="@{/desafios/novo}" class="btn btn-primary" sec:authorize="isAuthenticated()">Criar Primeiro Desafio</a>
+            </div>
+        </th:block>
+    </main>
+    <footer th:replace="~{layout :: footer}"></footer>
+</body>
+</html>
+

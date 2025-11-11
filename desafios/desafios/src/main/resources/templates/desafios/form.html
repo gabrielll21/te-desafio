@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{layout :: head}"></head>
+<body>
+    <nav th:replace="~{layout :: navbar}"></nav>
+    <main th:replace="~{layout :: main}">
+        <th:block th:fragment="content">
+            <div class="page-header">
+                <h1 class="page-title" th:text="${desafio != null ? 'Editar Desafio' : 'Criar Novo Desafio'}">Criar Desafio</h1>
+                <p class="page-subtitle" th:text="${desafio != null ? 'Atualize as informações do desafio' : 'Preencha os dados para criar um novo desafio'}">Preencha os dados para criar um novo desafio</p>
+            </div>
+
+            <div class="card" style="max-width: 800px; margin: 0 auto;">
+                <form th:action="${desafio != null ? '/desafios/' + desafio.id : '/desafios'}" 
+                      th:object="${desafioFormDTO}" method="post">
+                    <div class="form-group">
+                        <label for="titulo" class="form-label">Título do Desafio *</label>
+                        <input type="text" id="titulo" th:field="*{titulo}" class="form-input" 
+                               placeholder="Ex: Correr 5km por dia" required maxlength="120">
+                        <span class="form-error" th:if="${#fields.hasErrors('titulo')}" 
+                              th:errors="*{titulo}"></span>
+                        <span class="form-help">Máximo de 120 caracteres</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="descricao" class="form-label">Descrição *</label>
+                        <textarea id="descricao" th:field="*{descricao}" class="form-textarea" 
+                                  placeholder="Descreva o desafio em detalhes..." required maxlength="2000"></textarea>
+                        <span class="form-error" th:if="${#fields.hasErrors('descricao')}" 
+                              th:errors="*{descricao}"></span>
+                        <span class="form-help">Máximo de 2000 caracteres</span>
+                    </div>
+
+                    <div class="grid grid-2">
+                        <div class="form-group">
+                            <label for="dataInicio" class="form-label">Data de Início *</label>
+                            <input type="date" id="dataInicio" th:field="*{dataInicio}" class="form-input" required>
+                            <span class="form-error" th:if="${#fields.hasErrors('dataInicio')}" 
+                                  th:errors="*{dataInicio}"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="dataFinal" class="form-label">Data Final *</label>
+                            <input type="date" id="dataFinal" th:field="*{dataFinal}" class="form-input" required>
+                            <span class="form-error" th:if="${#fields.hasErrors('dataFinal')}" 
+                                  th:errors="*{dataFinal}"></span>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-2">
+                        <div class="form-group">
+                            <label for="categoriaId" class="form-label">Categoria *</label>
+                            <select id="categoriaId" th:field="*{categoriaId}" class="form-select" required>
+                                <option value="">Selecione uma categoria</option>
+                                <option th:each="cat : ${categorias}" 
+                                        th:value="${cat.id}" 
+                                        th:text="${cat.nome}">Categoria</option>
+                            </select>
+                            <span class="form-error" th:if="${#fields.hasErrors('categoriaId')}" 
+                                  th:errors="*{categoriaId}"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="subcategoriaId" class="form-label">Subcategoria (Opcional)</label>
+                            <select id="subcategoriaId" th:field="*{subcategoriaId}" class="form-select">
+                                <option value="">Nenhuma subcategoria</option>
+                                <option th:each="sub : ${subcategorias}" 
+                                        th:value="${sub.id}" 
+                                        th:text="${sub.nome}">Subcategoria</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-3">
+                        <div class="form-group">
+                            <label for="status" class="form-label">Status *</label>
+                            <select id="status" th:field="*{status}" class="form-select" required>
+                                <option value="RASCUNHO">Rascunho</option>
+                                <option value="ATIVO">Ativo</option>
+                                <option value="ENCERRADO">Encerrado</option>
+                                <option value="ARQUIVADO">Arquivado</option>
+                            </select>
+                            <span class="form-error" th:if="${#fields.hasErrors('status')}" 
+                                  th:errors="*{status}"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="dificuldade" class="form-label">Dificuldade (1-10) *</label>
+                            <input type="number" id="dificuldade" th:field="*{dificuldade}" 
+                                   class="form-input" min="1" max="10" required>
+                            <span class="form-error" th:if="${#fields.hasErrors('dificuldade')}" 
+                                  th:errors="*{dificuldade}"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="pontuacaoMaxima" class="form-label">Pontuação Máxima *</label>
+                            <input type="number" id="pontuacaoMaxima" th:field="*{pontuacaoMaxima}" 
+                                   class="form-input" min="0" required>
+                            <span class="form-error" th:if="${#fields.hasErrors('pontuacaoMaxima')}" 
+                                  th:errors="*{pontuacaoMaxima}"></span>
+                        </div>
+                    </div>
+
+                    <div class="card-footer">
+                        <a th:href="${desafio != null ? '/desafios/' + desafio.id : '/desafios'}" 
+                           class="btn btn-secondary">Cancelar</a>
+                        <button type="submit" class="btn btn-primary">
+                            <span th:text="${desafio != null ? 'Salvar Alterações' : 'Criar Desafio'}">Criar Desafio</span>
+                        </button>
+                        <form th:if="${desafio != null}" 
+                              th:action="@{/desafios/{id}/excluir(id=${desafio.id})}" 
+                              method="post" style="display: inline;">
+                            <button type="submit" class="btn btn-danger" data-delete>🗑️ Excluir</button>
+                        </form>
+                    </div>
+                </form>
+            </div>
+        </th:block>
+    </main>
+    <footer th:replace="~{layout :: footer}"></footer>
+</body>
+</html>
+

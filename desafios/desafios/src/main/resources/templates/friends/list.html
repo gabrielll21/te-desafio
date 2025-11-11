@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout :: head}"></head>
+<body>
+    <nav th:replace="~{layout :: navbar}"></nav>
+    <main th:replace="~{layout :: main}">
+        <th:block th:fragment="content">
+            <div class="page-header">
+                <h1 class="page-title">Meus Amigos</h1>
+                <p class="page-subtitle">Gerencie suas amizades</p>
+            </div>
+
+            <div class="action-buttons">
+                <a th:href="@{/friends/requests/incoming}" class="btn btn-primary">
+                    📨 Pedidos Recebidos
+                </a>
+                <a th:href="@{/friends/requests/outgoing}" class="btn btn-secondary">
+                    📤 Pedidos Enviados
+                </a>
+            </div>
+
+            <div th:if="${amigos != null and !amigos.empty}" class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Nome</th>
+                            <th>Email</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="amigo : ${amigos}">
+                            <td th:text="${amigo.nome}">Nome do Amigo</td>
+                            <td th:text="${amigo.email}">email@exemplo.com</td>
+                            <td>
+                                <a th:href="@{|/desafios?criador=${amigo.id}|}" class="btn btn-outline btn-sm">
+                                    Ver Desafios
+                                </a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div th:if="${amigos == null or amigos.empty}" class="empty-state">
+                <div class="empty-state-icon">👥</div>
+                <h3>Nenhum amigo ainda</h3>
+                <p>Comece adicionando amigos para compartilhar desafios!</p>
+                <a th:href="@{/friends/requests/incoming}" class="btn btn-primary">Ver Pedidos de Amizade</a>
+            </div>
+        </th:block>
+    </main>
+    <footer th:replace="~{layout :: footer}"></footer>
+</body>
+</html>

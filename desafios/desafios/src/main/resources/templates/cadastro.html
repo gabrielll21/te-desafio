@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout :: head}"></head>
+<body>
+    <nav th:replace="~{layout :: navbar}"></nav>
+    <main th:replace="~{layout :: main}">
+        <th:block th:fragment="content">
+    <div class="auth-container">
+        <div class="auth-card card">
+            <div class="auth-header">
+                <h1 class="page-title">Criar Conta</h1>
+                <p class="page-subtitle">Junte-se à comunidade de desafios</p>
+            </div>
+
+            <div th:if="${erro}" class="alert alert-error" th:text="${erro}"></div>
+
+            <form th:action="@{/cadastro}" th:object="${usuario}" method="post" class="auth-form">
+                <div class="form-group">
+                    <label for="nome" class="form-label">Nome Completo</label>
+                    <input type="text" id="nome" th:field="*{nome}" class="form-input" 
+                           placeholder="Seu nome completo" required>
+                    <span class="form-error" th:if="${#fields.hasErrors('nome')}" 
+                          th:errors="*{nome}"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="email" class="form-label">Email</label>
+                    <input type="email" id="email" th:field="*{email}" class="form-input" 
+                           placeholder="seu@email.com" required>
+                    <span class="form-error" th:if="${#fields.hasErrors('email')}" 
+                          th:errors="*{email}"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="senha" class="form-label">Senha</label>
+                    <input type="password" id="senha" th:field="*{senha}" class="form-input" 
+                           placeholder="Mínimo 6 caracteres" required minlength="6">
+                    <span class="form-help">A senha deve ter no mínimo 6 caracteres</span>
+                    <span class="form-error" th:if="${#fields.hasErrors('senha')}" 
+                          th:errors="*{senha}"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="role" class="form-label">Tipo de Conta</label>
+                    <select id="role" th:field="*{role}" class="form-select">
+                        <option value="USER">Usuário</option>
+                        <option value="ADMIN">Administrador</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-lg" style="width: 100%;">
+                    Criar Conta
+                </button>
+            </form>
+
+            <div class="auth-footer">
+                <p class="text-center">
+                    Já tem uma conta? 
+                    <a th:href="@{/login}" class="link-accent">Faça login aqui</a>
+                </p>
+            </div>
+        </div>
+    </div>
+        </th:block>
+    </main>
+    <footer th:replace="~{layout :: footer}"></footer>
+</body>
+</html>

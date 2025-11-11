@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{layout :: head}"></head>
+<body>
+    <nav th:replace="~{layout :: navbar}"></nav>
+    <main th:replace="~{layout :: main}">
+        <th:block th:fragment="content">
+        <div class="page-header">
+            <h1 class="page-title">Meu Perfil</h1>
+            <p class="page-subtitle">Gerencie suas informações pessoais</p>
+        </div>
+
+        <div class="grid grid-2">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Informações Pessoais</h3>
+                </div>
+                <div class="card-body">
+                    <div style="margin-bottom: 1.5rem;">
+                        <label style="color: var(--text-secondary); font-size: 0.9rem; display: block; margin-bottom: 0.5rem;">Nome</label>
+                        <p style="color: var(--text-primary); font-size: 1.1rem; font-weight: 500;" 
+                           th:text="${usuario != null ? usuario.nome : username}">Nome do Usuário</p>
+                    </div>
+                    <div style="margin-bottom: 1.5rem;">
+                        <label style="color: var(--text-secondary); font-size: 0.9rem; display: block; margin-bottom: 0.5rem;">Email</label>
+                        <p style="color: var(--text-primary); font-size: 1.1rem; font-weight: 500;" 
+                           th:text="${usuario != null ? usuario.email : #authentication.name}">email@exemplo.com</p>
+                    </div>
+                    <div th:if="${usuario != null and usuario.role != null}">
+                        <label style="color: var(--text-secondary); font-size: 0.9rem; display: block; margin-bottom: 0.5rem;">Tipo de Conta</label>
+                        <span class="badge badge-primary" th:text="${usuario.role}">USER</span>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <a th:href="@{/perfil/editar}" class="btn btn-primary">✏️ Editar Perfil</a>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Estatísticas</h3>
+                </div>
+                <div class="card-body">
+                    <div style="margin-bottom: 1.5rem;">
+                        <label style="color: var(--text-secondary); font-size: 0.9rem; display: block; margin-bottom: 0.5rem;">Desafios Criados</label>
+                        <p style="color: var(--accent); font-size: 1.5rem; font-weight: 700;" 
+                           th:text="${desafiosCriados != null ? desafiosCriados : '0'}">0</p>
+                    </div>
+                    <div style="margin-bottom: 1.5rem;">
+                        <label style="color: var(--text-secondary); font-size: 0.9rem; display: block; margin-bottom: 0.5rem;">Desafios Participando</label>
+                        <p style="color: var(--accent); font-size: 1.5rem; font-weight: 700;" 
+                           th:text="${desafiosParticipando != null ? desafiosParticipando : '0'}">0</p>
+                    </div>
+                    <div>
+                        <label style="color: var(--text-secondary); font-size: 0.9rem; display: block; margin-bottom: 0.5rem;">Amigos</label>
+                        <p style="color: var(--accent); font-size: 1.5rem; font-weight: 700;" 
+                           th:text="${amigoCount != null ? amigoCount : '0'}">0</p>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <a th:href="@{/desafios}" class="btn btn-outline btn-sm">Ver Desafios</a>
+                    <a th:href="@{/friends}" class="btn btn-outline btn-sm">Ver Amigos</a>
+                </div>
+            </div>
+        </div>
+        </th:block>
+    </main>
+    <footer th:replace="~{layout :: footer}"></footer>
+</body>
+</html>

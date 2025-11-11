@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:fragment="head">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${title != null ? title + ' | Desafios' : 'Desafios | Entre Amigos'}">Desafios | Entre Amigos</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/svg+xml" th:href="@{/images/favicon.svg}">
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar" th:fragment="navbar" th:if="${showNavbar != false}">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <a th:href="@{/}" class="logo">
+                    <span class="logo-icon">⚡</span>
+                    <span class="logo-text">Desafios</span>
+                </a>
+            </div>
+            
+            <div class="nav-menu" id="navMenu">
+                <a th:href="@{/}" class="nav-link">Home</a>
+                <a th:href="@{/desafios}" class="nav-link" sec:authorize="isAuthenticated()">Desafios</a>
+                <a th:href="@{/friends}" class="nav-link" sec:authorize="isAuthenticated()">Amigos</a>
+                <a th:href="@{/convites/recebidos}" class="nav-link" sec:authorize="isAuthenticated()">
+                    Convites
+                    <span class="badge" th:if="${conviteCount != null and conviteCount > 0}" th:text="${conviteCount}"></span>
+                </a>
+                <a th:href="@{/perfil}" class="nav-link" sec:authorize="isAuthenticated()">Perfil</a>
+                <a th:href="@{/logout}" class="nav-link btn-logout" sec:authorize="isAuthenticated()">Sair</a>
+                <a th:href="@{/login}" class="nav-link" sec:authorize="!isAuthenticated()">Entrar</a>
+                <a th:href="@{/cadastro}" class="nav-link btn-primary-nav" sec:authorize="!isAuthenticated()">Cadastrar</a>
+            </div>
+            
+            <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content" th:fragment="main">
+        <div class="container">
+            <!-- Flash Messages -->
+            <div th:if="${message}" class="alert alert-success" th:text="${message}"></div>
+            <div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
+            
+            <!-- Page Content -->
+            <div th:replace="~{::content}">
+                <!-- Content will be inserted here -->
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer" th:fragment="footer" th:if="${showFooter != false}">
+        <div class="footer-container">
+            <p>&copy; 2024 Desafios | Entre Amigos. Todos os direitos reservados.</p>
+            <div class="footer-links">
+                <a th:href="@{/}" class="footer-link">Home</a>
+                <a th:href="@{/desafios}" class="footer-link" sec:authorize="isAuthenticated()">Desafios</a>
+                <a th:href="@{/perfil}" class="footer-link" sec:authorize="isAuthenticated()">Perfil</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script th:src="@{/js/main.js}"></script>
+</body>
+</html>

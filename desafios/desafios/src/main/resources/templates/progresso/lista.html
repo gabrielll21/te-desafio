@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout :: head}"></head>
+<body>
+    <nav th:replace="~{layout :: navbar}"></nav>
+    <main th:replace="~{layout :: main}">
+        <th:block th:fragment="content">
+            <div class="page-header">
+                <h1 class="page-title" th:text="${desafio.titulo}">Nome do Desafio</h1>
+                <p class="page-subtitle" th:text="${desafio.descricao}">Descrição do desafio</p>
+            </div>
+
+            <div class="action-buttons">
+                <a th:href="@{|/desafios/${desafio.id}|}" class="btn btn-secondary">← Voltar para Desafio</a>
+            </div>
+
+            <div class="grid grid-2" style="margin-bottom: 2rem;">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Meu Progresso</h3>
+                    </div>
+                    <div class="card-body">
+                        <div th:if="${meuProgresso != null and !meuProgresso.empty}">
+                            <div th:each="p : ${meuProgresso}" style="padding: 1rem; margin-bottom: 0.5rem; 
+                                 background: var(--bg-tertiary); border-radius: var(--border-radius);">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                                    <span class="badge badge-primary" th:text="${p.acao}">AÇÃO</span>
+                                    <span style="color: var(--text-muted); font-size: 0.85rem;" 
+                                          th:text="${#temporals.format(p.criadoEm, 'dd/MM/yyyy HH:mm')}"></span>
+                                </div>
+                                <p th:if="${p.nota != null and !p.nota.isEmpty()}" 
+                                   style="color: var(--text-secondary); margin: 0;"
+                                   th:text="${p.nota}">Nota</p>
+                            </div>
+                        </div>
+                        <div th:if="${meuProgresso == null or meuProgresso.empty}" class="empty-state" style="padding: 1rem;">
+                            <p style="color: var(--text-muted);">Nenhum progresso registrado ainda.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Registrar Progresso</h3>
+                    </div>
+                    <div class="card-body">
+                        <form th:action="@{|/desafios/${desafio.id}/progresso|}" method="post">
+                            <div class="form-group">
+                                <label for="acao" class="form-label">Ação</label>
+                                <select id="acao" name="acao" class="form-select" required>
+                                    <option value="">Selecione uma ação</option>
+                                    <option value="INICIO">🚀 Iniciar Desafio</option>
+                                    <option value="ETAPA">📝 Registrar Etapa</option>
+                                    <option value="CONCLUIDO">✅ Concluir Desafio</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="nota" class="form-label">Comentário (Opcional)</label>
+                                <textarea id="nota" name="nota" class="form-textarea" 
+                                          placeholder="Descreva seu progresso..." maxlength="500"></textarea>
+                                <span class="form-help">Máximo de 500 caracteres</span>
+                            </div>
+                            <button type="submit" class="btn btn-primary" style="width: 100%;">
+                                Registrar Progresso
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Progresso Geral do Desafio</h3>
+                </div>
+                <div class="card-body">
+                    <div th:if="${progresso != null and !progresso.empty}">
+                        <div th:each="p : ${progresso}" style="padding: 1rem; margin-bottom: 0.5rem; 
+                             background: var(--bg-tertiary); border-radius: var(--border-radius);">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                                <div>
+                                    <strong style="color: var(--text-primary);" th:text="${p.usuario.nome}">Nome do Usuário</strong>
+                                    <span class="badge badge-primary" style="margin-left: 0.5rem;" th:text="${p.acao}">AÇÃO</span>
+                                </div>
+                                <span style="color: var(--text-muted); font-size: 0.85rem;" 
+                                      th:text="${#temporals.format(p.criadoEm, 'dd/MM/yyyy HH:mm')}"></span>
+                            </div>
+                            <p th:if="${p.nota != null and !p.nota.isEmpty()}" 
+                               style="color: var(--text-secondary); margin: 0;"
+                               th:text="${p.nota}">Nota</p>
+                        </div>
+                    </div>
+                    <div th:if="${progresso == null or progresso.empty}" class="empty-state" style="padding: 1rem;">
+                        <p style="color: var(--text-muted);">Nenhum progresso registrado ainda.</p>
+                    </div>
+                </div>
+            </div>
+        </th:block>
+    </main>
+    <footer th:replace="~{layout :: footer}"></footer>
+</body>
+</html>

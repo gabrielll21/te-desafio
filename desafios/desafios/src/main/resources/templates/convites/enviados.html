@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout :: head}"></head>
+<body>
+    <nav th:replace="~{layout :: navbar}"></nav>
+    <main th:replace="~{layout :: main}">
+        <th:block th:fragment="content">
+            <div class="page-header">
+                <h1 class="page-title">Convites de Desafio Enviados</h1>
+                <p class="page-subtitle">Gerencie seus convites de desafio</p>
+            </div>
+
+            <div class="action-buttons">
+                <a th:href="@{/convites/recebidos}" class="btn btn-outline">Ver Convites Recebidos</a>
+                <a th:href="@{/desafios}" class="btn btn-secondary">Ver Todos os Desafios</a>
+            </div>
+
+            <div th:if="${enviados != null and !enviados.empty}" class="grid grid-2">
+                <div class="card" th:each="convite : ${enviados}">
+                    <div class="card-header">
+                        <h3 class="card-title" th:text="${convite.desafio.titulo}">Título do Desafio</h3>
+                        <p style="color: var(--text-secondary); font-size: 0.9rem;">
+                            Para: <span th:text="${convite.destinatario.nome}">Nome do Destinatário</span>
+                        </p>
+                    </div>
+                    <div class="card-body">
+                        <span class="badge" 
+                              th:classappend="${convite.status.name() == 'ACEITO'} ? 'badge-success' : 
+                                             (${convite.status.name() == 'RECUSADO'} ? 'badge-error' : 
+                                             (${convite.status.name() == 'CANCELADO'} ? 'badge-warning' : 'badge-primary'))"
+                              th:text="${convite.status}">PENDENTE</span>
+                        <p th:if="${convite.mensagem != null and !convite.mensagem.isEmpty()}" 
+                           style="color: var(--text-secondary); margin: 1rem 0;"
+                           th:text="${convite.mensagem}">Mensagem</p>
+                        <p style="color: var(--text-muted); font-size: 0.85rem;">
+                            Enviado em: <span th:text="${#temporals.format(convite.criadoEm, 'dd/MM/yyyy HH:mm')}"></span>
+                        </p>
+                    </div>
+                    <div class="card-footer" th:if="${convite.status.name() == 'PENDENTE'}">
+                        <a th:href="@{|/desafios/${convite.desafio.id}|}" class="btn btn-outline btn-sm">Ver Desafio</a>
+                        <form th:action="@{/convites/{id}/cancelar(id=${convite.id})}" method="post" style="display: inline;">
+                            <button type="submit" class="btn btn-danger btn-sm">Cancelar Convite</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <div th:if="${enviados == null or enviados.empty}" class="empty-state">
+                <div class="empty-state-icon">📤</div>
+                <h3>Nenhum convite enviado</h3>
+                <p>Você não enviou nenhum convite de desafio ainda.</p>
+            </div>
+        </th:block>
+    </main>
+    <footer th:replace="~{layout :: footer}"></footer>
+</body>
+</html>

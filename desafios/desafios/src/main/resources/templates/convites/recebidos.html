@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout :: head}"></head>
+<body>
+    <nav th:replace="~{layout :: navbar}"></nav>
+    <main th:replace="~{layout :: main}">
+        <th:block th:fragment="content">
+            <div class="page-header">
+                <h1 class="page-title">Convites de Desafio Recebidos</h1>
+                <p class="page-subtitle">Aceite ou recuse convites de desafio</p>
+            </div>
+
+            <div class="action-buttons">
+                <a th:href="@{/convites/enviados}" class="btn btn-outline">Ver Convites Enviados</a>
+                <a th:href="@{/desafios}" class="btn btn-secondary">Ver Todos os Desafios</a>
+            </div>
+
+            <div th:if="${recebidos != null and !recebidos.empty}" class="grid grid-2">
+                <div class="card" th:each="convite : ${recebidos}">
+                    <div class="card-header">
+                        <h3 class="card-title" th:text="${convite.desafio.titulo}">Título do Desafio</h3>
+                        <p style="color: var(--text-secondary); font-size: 0.9rem;">
+                            De: <span th:text="${convite.remetente.nome}">Nome do Remetente</span>
+                        </p>
+                    </div>
+                    <div class="card-body">
+                        <p th:if="${convite.mensagem != null and !convite.mensagem.isEmpty()}" 
+                           style="color: var(--text-secondary); margin-bottom: 1rem;"
+                           th:text="${convite.mensagem}">Mensagem</p>
+                        <p style="color: var(--text-muted); font-size: 0.85rem;">
+                            Enviado em: <span th:text="${#temporals.format(convite.criadoEm, 'dd/MM/yyyy HH:mm')}"></span>
+                        </p>
+                    </div>
+                    <div class="card-footer">
+                        <a th:href="@{|/desafios/${convite.desafio.id}|}" class="btn btn-outline btn-sm">Ver Detalhes</a>
+                        <form th:action="@{/convites/{id}/aceitar(id=${convite.id})}" method="post" style="display: inline;">
+                            <button type="submit" class="btn btn-primary btn-sm">✓ Aceitar</button>
+                        </form>
+                        <form th:action="@{/convites/{id}/recusar(id=${convite.id})}" method="post" style="display: inline;">
+                            <button type="submit" class="btn btn-danger btn-sm">✗ Recusar</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <div th:if="${recebidos == null or recebidos.empty}" class="empty-state">
+                <div class="empty-state-icon">📭</div>
+                <h3>Nenhum convite recebido</h3>
+                <p>Você não tem convites de desafio pendentes no momento.</p>
+            </div>
+        </th:block>
+    </main>
+    <footer th:replace="~{layout :: footer}"></footer>
+</body>
+</html>
