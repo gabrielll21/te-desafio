@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout :: head}"></head>
+<body>
+    <nav th:replace="~{layout :: navbar}"></nav>
+    <main th:replace="~{layout :: main}">
+        <th:block th:fragment="content">
+            <div class="page-header">
+                <h1 class="page-title" th:text="${usuario.nome}">Nome do Usuário</h1>
+                <p class="page-subtitle">Perfil do usuário</p>
+            </div>
+
+            <div th:if="${param.error}" class="alert alert-error">
+                <strong>Erro!</strong> <span th:text="${param.error}"></span>
+            </div>
+
+            <div class="action-buttons">
+                <a th:href="@{/friends/buscar}" class="btn btn-secondary">← Voltar para Busca</a>
+                <a th:href="@{/friends}" class="btn btn-outline">Ver Meus Amigos</a>
+            </div>
+
+            <div class="grid grid-2" style="margin-top: 2rem;">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Informações do Usuário</h3>
+                    </div>
+                    <div class="card-body">
+                        <div style="margin-bottom: 1.5rem;">
+                            <label style="color: var(--text-secondary); font-size: 0.9rem; display: block; margin-bottom: 0.5rem;">Nome</label>
+                            <p style="color: var(--text-primary); font-size: 1.1rem; font-weight: 500;" 
+                               th:text="${usuario.nome}">Nome do Usuário</p>
+                        </div>
+                        <div style="margin-bottom: 1.5rem;">
+                            <label style="color: var(--text-secondary); font-size: 0.9rem; display: block; margin-bottom: 0.5rem;">Email</label>
+                            <p style="color: var(--text-primary); font-size: 1.1rem; font-weight: 500;" 
+                               th:text="${usuario.email}">email@exemplo.com</p>
+                        </div>
+                        <div th:if="${usuario.role != null}">
+                            <label style="color: var(--text-secondary); font-size: 0.9rem; display: block; margin-bottom: 0.5rem;">Tipo de Conta</label>
+                            <span class="badge badge-primary" th:text="${usuario.role}">USER</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Ações</h3>
+                    </div>
+                    <div class="card-body">
+                        <div th:if="${saoAmigos}" style="padding: 1rem; background: rgba(80, 250, 123, 0.1); 
+                             border-radius: var(--border-radius); border: 1px solid var(--success); margin-bottom: 1rem;">
+                            <p style="color: var(--success); margin: 0; font-weight: 600;">
+                                ✓ Vocês já são amigos!
+                            </p>
+                        </div>
+                        
+                        <div th:if="${jaEnviouPedido}" style="padding: 1rem; background: rgba(255, 184, 108, 0.1); 
+                             border-radius: var(--border-radius); border: 1px solid var(--warning); margin-bottom: 1rem;">
+                            <p style="color: var(--warning); margin: 0; font-weight: 600;">
+                                ⏳ Pedido de amizade já enviado
+                            </p>
+                            <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 0.5rem; margin-bottom: 0;">
+                                Aguardando resposta...
+                            </p>
+                            <a th:href="@{/friends/requests/outgoing}" class="btn btn-outline btn-sm" style="margin-top: 0.5rem; width: 100%;">
+                                Ver Pedidos Enviados
+                            </a>
+                        </div>
+
+                        <div th:if="${recebeuPedido}" style="padding: 1rem; background: rgba(100, 255, 218, 0.1); 
+                             border-radius: var(--border-radius); border: 1px solid var(--accent); margin-bottom: 1rem;">
+                            <p style="color: var(--accent); margin: 0; font-weight: 600;">
+                                📨 Este usuário enviou um pedido de amizade para você
+                            </p>
+                            <a th:href="@{/friends/requests/incoming}" class="btn btn-primary btn-sm" style="margin-top: 0.5rem; width: 100%;">
+                                Ver e Responder
+                            </a>
+                        </div>
+
+                        <div th:if="${!saoAmigos and !jaEnviouPedido and !recebeuPedido}">
+                            <p style="color: var(--text-secondary); margin-bottom: 1rem;">
+                                Envie uma solicitação de amizade para este usuário.
+                            </p>
+                            <form th:action="@{/friends/requests}" method="post" style="margin-bottom: 0;">
+                                <input type="hidden" name="toUserId" th:value="${usuario.id}"/>
+                                <button type="submit" class="btn btn-primary" style="width: 100%;">
+                                    📨 Enviar Solicitação de Amizade
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                    <div class="card-footer" th:if="${saoAmigos}">
+                        <a th:href="@{|/desafios?criador=${usuario.id}|}" class="btn btn-outline btn-sm">
+                            Ver Desafios Criados
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </th:block>
+    </main>
+    <footer th:replace="~{layout :: footer}"></footer>
+</body>
+</html>
+

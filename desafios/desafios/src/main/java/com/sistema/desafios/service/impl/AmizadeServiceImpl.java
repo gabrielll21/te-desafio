@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,6 +30,7 @@ public class AmizadeServiceImpl implements AmizadeService {
     private UsuarioRepository usuarioRepository;
 
     @Override
+    @Transactional
     public PedidoAmizade criarPedido(Long idSolicitante, Long idDestinatario) {
         Usuario solicitante = usuarioRepository.findById(idSolicitante)
             .orElseThrow(() -> new IllegalArgumentException("Usuário solicitante não encontrado"));
@@ -39,7 +41,18 @@ public class AmizadeServiceImpl implements AmizadeService {
             throw new IllegalArgumentException("Solicitante não pode ser o mesmo que o destinatário");
         }
 
-        if (haPendenteEntre(solicitante.getId(), destinatario.getId())) {
+        // Verificar se já são amigos
+        if (saoAmigos(idSolicitante, idDestinatario)) {
+            throw new IllegalArgumentException("Vocês já são amigos!");
+        }
+
+        // Verificar se já existe pedido pendente
+        Optional<PedidoAmizade> pedidoExistente = pedidoAmizadeRepository.findByParAAndParB(
+            Math.min(idSolicitante, idDestinatario),
+            Math.max(idSolicitante, idDestinatario)
+        );
+        
+        if (pedidoExistente.isPresent() && pedidoExistente.get().getStatus() == StatusPedidoAmizade.PENDENTE) {
             throw new IllegalArgumentException("Já existe um pedido pendente entre os usuários");
         }
 
@@ -122,17 +135,17 @@ public class AmizadeServiceImpl implements AmizadeService {
         // Implementar lógica para listar amigos
 
     @Override
+    @Transactional(readOnly = true)
     public List<PedidoAmizade> listarRecebidos(Long meuId) {
         Usuario usuario = usuarioRepository.findById(meuId).orElseThrow();
         return pedidoAmizadeRepository.findAllByDestinatarioAndStatus(usuario, StatusPedidoAmizade.PENDENTE);
     }
-        // Implementar lógica para listar pedidos recebidos
 
     @Override
+    @Transactional(readOnly = true)
     public List<PedidoAmizade> listarEnviados(Long meuId) {
         Usuario usuario = usuarioRepository.findById(meuId).orElseThrow();
         return pedidoAmizadeRepository.findAllBySolicitanteAndStatus(usuario, StatusPedidoAmizade.PENDENTE);
     }
-        // Implementar lógica para listar pedidos enviados
 
 }
