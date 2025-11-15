@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout :: head}"></head>
+<body>
+    <nav th:replace="~{layout :: navbar}"></nav>
+    <main th:replace="~{layout :: main}">
+        <th:block th:fragment="content">
+            <div class="page-header">
+                <h1 class="page-title">Buscar Usuários</h1>
+                <p class="page-subtitle">Encontre pessoas para adicionar como amigo</p>
+            </div>
+
+            <div class="action-buttons">
+                <a th:href="@{/friends}" class="btn btn-secondary">← Voltar para Amigos</a>
+            </div>
+
+            <div class="card" style="margin-bottom: 2rem;">
+                <form th:action="@{/friends/buscar}" method="get" style="display: flex; gap: 1rem; align-items: flex-end;">
+                    <div class="form-group" style="flex: 1; margin-bottom: 0;">
+                        <label for="q" class="form-label">Nome do usuário</label>
+                        <input type="text" id="q" name="q" class="form-input" 
+                               th:value="${query}" placeholder="Digite o nome para buscar..." autofocus>
+                    </div>
+                    <button type="submit" class="btn btn-primary">🔍 Buscar</button>
+                </form>
+            </div>
+
+            <div th:if="${resultados != null and !resultados.empty}" class="grid grid-2">
+                <div class="card" th:each="usuario : ${resultados}">
+                    <div class="card-header">
+                        <h3 class="card-title" th:text="${usuario.nome}">Nome do Usuário</h3>
+                        <p style="color: var(--text-secondary); font-size: 0.9rem;" 
+                           th:text="${usuario.email}">email@exemplo.com</p>
+                    </div>
+                    <div class="card-body">
+                        <p style="color: var(--text-muted); font-size: 0.85rem;">
+                            ID: <span th:text="${usuario.id}"></span>
+                        </p>
+                    </div>
+                    <div class="card-footer">
+                        <a th:href="@{|/friends/perfil/${usuario.id}|}" class="btn btn-primary btn-sm">
+                            👤 Ver Perfil
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div th:if="${resultados != null and resultados.empty}" class="empty-state">
+                <div class="empty-state-icon">🔍</div>
+                <h3>Nenhum usuário encontrado</h3>
+                <p th:text="'Não encontramos usuários com o nome: ' + ${query}">Nenhum resultado</p>
+                <p style="color: var(--text-muted);">Tente buscar com outro termo.</p>
+            </div>
+
+            <div th:if="${resultados == null}" class="empty-state">
+                <div class="empty-state-icon">🔍</div>
+                <h3>Buscar usuários</h3>
+                <p>Digite o nome de um usuário no campo de busca acima para encontrá-lo.</p>
+            </div>
+        </th:block>
+    </main>
+    <footer th:replace="~{layout :: footer}"></footer>
+</body>
+</html>
+

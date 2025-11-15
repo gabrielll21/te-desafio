@@ -40,17 +40,28 @@ public class AmizadeController {
 
     @GetMapping("/requests/outgoing")
     public String listarPedidosEnviados(Model model, Authentication auth) {
-        Long usuarioId = idUsuarioAtual(auth);
-        List<PedidoAmizade> pedidosEnviados = amizadeService.listarEnviados(usuarioId);
-        model.addAttribute("pedidosEnviados", pedidosEnviados);
-        return "friends/requests/outgoing";
+        try {
+            Long usuarioId = idUsuarioAtual(auth);
+            List<PedidoAmizade> pedidosEnviados = amizadeService.listarEnviados(usuarioId);
+            model.addAttribute("pedidosEnviados", pedidosEnviados);
+            return "friends/requests/outgoing";
+        } catch (Exception e) {
+            model.addAttribute("error", "Erro ao carregar pedidos enviados: " + e.getMessage());
+            return "friends/requests/outgoing";
+        }
     }
 
     @PostMapping("/requests")
     public String criarPedido(@RequestParam Long toUserId, Authentication auth) {
-        Long usuarioId = idUsuarioAtual(auth);
-        amizadeService.criarPedido(usuarioId, toUserId);
-        return "redirect:/friends/requests/outgoing";
+        try {
+            Long usuarioId = idUsuarioAtual(auth);
+            amizadeService.criarPedido(usuarioId, toUserId);
+            return "redirect:/friends/requests/outgoing?success=pedido-enviado";
+        } catch (IllegalArgumentException e) {
+            return "redirect:/friends/perfil/" + toUserId + "?error=" + e.getMessage().replace(" ", "%20");
+        } catch (Exception e) {
+            return "redirect:/friends/perfil/" + toUserId + "?error=erro-ao-enviar-pedido";
+        }
     }
 
     @PostMapping("/requests/{id}/accept")
@@ -72,6 +83,59 @@ public class AmizadeController {
         Long usuarioId = idUsuarioAtual(auth);
         amizadeService.cancelar(id, usuarioId);
         return "redirect:/friends/requests/outgoing";
+    }
+
+    @GetMapping("/buscar")
+    public String buscarUsuarios(@RequestParam(required = false) String q, Model model, Authentication auth) {
+        Long usuarioId = idUsuarioAtual(auth);
+        List<Usuario> resultados = null;
+        
+        if (q != null && !q.trim().isEmpty()) {
+            resultados = usuarioRepository.findByNomeContainingIgnoreCase(q.trim());
+            // Remover o próprio usuário dos resultados
+            resultados.removeIf(u -> u.getId().equals(usuarioId));
+        }
+        
+        model.addAttribute("resultados", resultados);
+        model.addAttribute("query", q);
+        model.addAttribute("meuId", usuarioId);
+        return "friends/buscar";
+    }
+
+    @GetMapping("/perfil/{id}")
+    public String verPerfil(@PathVariable Long id, Model model, Authentication auth) {
+        Long usuarioId = idUsuarioAtual(auth);
+        
+        // Não permitir ver o próprio perfil
+        if (id.equals(usuarioId)) {
+            return "redirect:/perfil";
+        }
+        
+        Usuario usuario = usuarioRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+        
+        // Verificar se já são amigos
+        boolean saoAmigos = amizadeService.saoAmigos(usuarioId, id);
+        
+        // Verificar se já enviou pedido para este usuário (pendente)
+        List<PedidoAmizade> pedidosEnviados = amizadeService.listarEnviados(usuarioId);
+        boolean jaEnviouPedido = pedidosEnviados.stream()
+                .anyMatch(p -> p.getDestinatario().getId().equals(id) && 
+                              p.getStatus().name().equals("PENDENTE"));
+        
+        // Verificar se recebeu pedido deste usuário (pendente)
+        List<PedidoAmizade> pedidosRecebidos = amizadeService.listarRecebidos(usuarioId);
+        boolean recebeuPedido = pedidosRecebidos.stream()
+                .anyMatch(p -> p.getSolicitante().getId().equals(id) && 
+                              p.getStatus().name().equals("PENDENTE"));
+        
+        model.addAttribute("usuario", usuario);
+        model.addAttribute("saoAmigos", saoAmigos);
+        model.addAttribute("jaEnviouPedido", jaEnviouPedido);
+        model.addAttribute("recebeuPedido", recebeuPedido);
+        model.addAttribute("meuId", usuarioId);
+        
+        return "friends/perfil";
     }
 
     private Long idUsuarioAtual(Authentication auth) {

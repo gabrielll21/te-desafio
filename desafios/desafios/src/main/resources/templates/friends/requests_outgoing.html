@@ -10,6 +10,12 @@
                 <p class="page-subtitle">Gerencie seus pedidos de amizade</p>
             </div>
 
+            <div th:if="${param.success == 'pedido-enviado'}" class="alert alert-success">
+                <strong>Sucesso!</strong> Pedido de amizade enviado com sucesso!
+            </div>
+
+            <div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
+
             <div class="action-buttons">
                 <a th:href="@{/friends}" class="btn btn-secondary">← Voltar para Amigos</a>
                 <a th:href="@{/friends/requests/incoming}" class="btn btn-outline">Ver Pedidos Recebidos</a>
@@ -23,12 +29,12 @@
                            th:text="${pedido.destinatario.email}">email@exemplo.com</p>
                     </div>
                     <div class="card-body">
-                        <span class="badge badge-warning" th:text="${pedido.status}">PENDENTE</span>
-                        <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 0.5rem;">
+                        <span class="badge badge-warning" th:text="${pedido.status != null ? pedido.status : 'PENDENTE'}">PENDENTE</span>
+                        <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 0.5rem;" th:if="${pedido.criadoEm != null}">
                             Enviado em: <span th:text="${#temporals.format(pedido.criadoEm, 'dd/MM/yyyy HH:mm')}"></span>
                         </p>
                     </div>
-                    <div class="card-footer" th:if="${pedido.status.name() == 'PENDENTE'}">
+                    <div class="card-footer" th:if="${pedido.status != null and pedido.status.toString().equals('PENDENTE')}">
                         <form th:action="@{/friends/requests/{id}/cancel(id=${pedido.id})}" method="post" style="display: inline;">
                             <button type="submit" class="btn btn-danger btn-sm">Cancelar Pedido</button>
                         </form>

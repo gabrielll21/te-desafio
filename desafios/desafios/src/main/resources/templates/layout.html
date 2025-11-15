@@ -3,7 +3,7 @@
 <head th:fragment="head">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:text="${title != null ? title + ' | Desafios' : 'Desafios | Entre Amigos'}">Desafios | Entre Amigos</title>
+    <title th:text="${title != null ? title + ' | Desafios' : 'Desafios | Entre Amigos'}">Te-Desafio</title>
     <link rel="stylesheet" th:href="@{/css/style.css}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -17,7 +17,7 @@
             <div class="nav-brand">
                 <a th:href="@{/}" class="logo">
                     <span class="logo-icon">⚡</span>
-                    <span class="logo-text">Desafios</span>
+                    <span class="logo-text">Te-Desafio</span>
                 </a>
             </div>
             
@@ -60,7 +60,7 @@
     <!-- Footer -->
     <footer class="footer" th:fragment="footer" th:if="${showFooter != false}">
         <div class="footer-container">
-            <p>&copy; 2024 Desafios | Entre Amigos. Todos os direitos reservados.</p>
+            <p>&copy; 2025 Te-Desafio. Todos os direitos reservados.</p>
             <div class="footer-links">
                 <a th:href="@{/}" class="footer-link">Home</a>
                 <a th:href="@{/desafios}" class="footer-link" sec:authorize="isAuthenticated()">Desafios</a>

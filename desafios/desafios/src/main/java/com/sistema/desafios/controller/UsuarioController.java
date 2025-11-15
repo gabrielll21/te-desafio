@@ -49,9 +49,4 @@ public class UsuarioController {
         return "login";
     }
 
-    /*@GetMapping("/home")
-    public String mostrarHome(Model model) {
-        return "home";
-    }*/
-
 }
