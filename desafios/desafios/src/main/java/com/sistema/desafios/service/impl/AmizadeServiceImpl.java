@@ -10,18 +10,18 @@ import com.sistema.desafios.repository.UsuarioRepository;
 import com.sistema.desafios.service.AmizadeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class AmizadeServiceImpl implements AmizadeService {
 
     @Autowired
-    private PedidoAmizadeRepository pedidoAmizadeRepository;
+    private PedidoAmizadeRepository pedidoRepository;
 
     @Autowired
     private AmizadeRepository amizadeRepository;
@@ -32,14 +32,21 @@ public class AmizadeServiceImpl implements AmizadeService {
     @Override
     @Transactional
     public PedidoAmizade criarPedido(Long idSolicitante, Long idDestinatario) {
+        // Validar IDs
+        if (idSolicitante == null || idDestinatario == null) {
+            throw new IllegalArgumentException("IDs não podem ser nulos");
+        }
+        
+        if (idSolicitante.equals(idDestinatario)) {
+            throw new IllegalArgumentException("Você não pode enviar pedido para si mesmo");
+        }
+
+        // Buscar usuários
         Usuario solicitante = usuarioRepository.findById(idSolicitante)
             .orElseThrow(() -> new IllegalArgumentException("Usuário solicitante não encontrado"));
+        
         Usuario destinatario = usuarioRepository.findById(idDestinatario)
             .orElseThrow(() -> new IllegalArgumentException("Usuário destinatário não encontrado"));
-
-        if (solicitante.equals(destinatario)) {
-            throw new IllegalArgumentException("Solicitante não pode ser o mesmo que o destinatário");
-        }
 
         // Verificar se já são amigos
         if (saoAmigos(idSolicitante, idDestinatario)) {
@@ -47,105 +54,138 @@ public class AmizadeServiceImpl implements AmizadeService {
         }
 
         // Verificar se já existe pedido pendente
-        Optional<PedidoAmizade> pedidoExistente = pedidoAmizadeRepository.findByParAAndParB(
-            Math.min(idSolicitante, idDestinatario),
-            Math.max(idSolicitante, idDestinatario)
+        Optional<PedidoAmizade> pedidoExistente = pedidoRepository.findPedidoPendenteEntre(
+            idSolicitante, 
+            idDestinatario, 
+            StatusPedidoAmizade.PENDENTE
         );
         
-        if (pedidoExistente.isPresent() && pedidoExistente.get().getStatus() == StatusPedidoAmizade.PENDENTE) {
-            throw new IllegalArgumentException("Já existe um pedido pendente entre os usuários");
+        if (pedidoExistente.isPresent()) {
+            throw new IllegalArgumentException("Já existe um pedido pendente entre vocês");
         }
 
-        PedidoAmizade pedido = new PedidoAmizade();
-        pedido.setSolicitante(solicitante);
-        pedido.setDestinatario(destinatario);
-        return pedidoAmizadeRepository.save(pedido);
+        // Criar novo pedido
+        PedidoAmizade pedido = new PedidoAmizade(solicitante, destinatario);
+        return pedidoRepository.save(pedido);
     }
+
     @Override
     @Transactional
     public void aceitar(Long idPedido, Long idUsuarioAtual) {
-        PedidoAmizade pedido = pedidoAmizadeRepository.findById(idPedido)
-            .orElseThrow(() -> new IllegalArgumentException("Pedido de amizade não encontrado"));
+        PedidoAmizade pedido = pedidoRepository.findById(idPedido)
+            .orElseThrow(() -> new IllegalArgumentException("Pedido não encontrado"));
         
         if (!pedido.getDestinatario().getId().equals(idUsuarioAtual)) {
-            throw new IllegalArgumentException("Usuário atual não é o destinatário do pedido");
+            throw new IllegalArgumentException("Você não pode aceitar este pedido");
+        }
+
+        if (pedido.getStatus() != StatusPedidoAmizade.PENDENTE) {
+            throw new IllegalArgumentException("Este pedido já foi processado");
         }
 
         // Criar amizade se não existir
-        if (!saoAmigos(pedido.getSolicitante().getId(), pedido.getDestinatario().getId())) {
-            Amizade amizade = Amizade.of(pedido.getSolicitante(), pedido.getDestinatario());
+        Long id1 = pedido.getSolicitante().getId();
+        Long id2 = pedido.getDestinatario().getId();
+        
+        if (!saoAmigos(id1, id2)) {
+            Usuario usuarioA = pedido.getSolicitante();
+            Usuario usuarioB = pedido.getDestinatario();
+            Amizade amizade = Amizade.of(usuarioA, usuarioB);
             amizadeRepository.save(amizade);
         }
 
         // Atualizar status do pedido
         pedido.setStatus(StatusPedidoAmizade.ACEITO);
-        pedidoAmizadeRepository.save(pedido);
+        pedidoRepository.save(pedido);
     }
 
     @Override
+    @Transactional
     public void recusar(Long idPedido, Long idUsuarioAtual) {
-        PedidoAmizade pedido = pedidoAmizadeRepository.findById(idPedido)
-            .orElseThrow(() -> new IllegalArgumentException("Pedido de amizade não encontrado"));
+        PedidoAmizade pedido = pedidoRepository.findById(idPedido)
+            .orElseThrow(() -> new IllegalArgumentException("Pedido não encontrado"));
         
         if (!pedido.getDestinatario().getId().equals(idUsuarioAtual)) {
-            throw new IllegalArgumentException("Usuário atual não é o destinatário do pedido");
+            throw new IllegalArgumentException("Você não pode recusar este pedido");
         }
 
-        // Atualizar status do pedido
+        if (pedido.getStatus() != StatusPedidoAmizade.PENDENTE) {
+            throw new IllegalArgumentException("Este pedido já foi processado");
+        }
+
         pedido.setStatus(StatusPedidoAmizade.RECUSADO);
-        pedidoAmizadeRepository.save(pedido);
+        pedidoRepository.save(pedido);
     }
 
     @Override
+    @Transactional
     public void cancelar(Long idPedido, Long idUsuarioAtual) {
-        PedidoAmizade pedido = pedidoAmizadeRepository.findById(idPedido)
-            .orElseThrow(() -> new IllegalArgumentException("Pedido de amizade não encontrado"));
+        PedidoAmizade pedido = pedidoRepository.findById(idPedido)
+            .orElseThrow(() -> new IllegalArgumentException("Pedido não encontrado"));
         
         if (!pedido.getSolicitante().getId().equals(idUsuarioAtual)) {
-            throw new IllegalArgumentException("Usuário atual não é o solicitante do pedido");
+            throw new IllegalArgumentException("Você não pode cancelar este pedido");
         }
 
-        // Atualizar status do pedido
+        if (pedido.getStatus() != StatusPedidoAmizade.PENDENTE) {
+            throw new IllegalArgumentException("Este pedido já foi processado");
+        }
+
         pedido.setStatus(StatusPedidoAmizade.CANCELADO);
-        pedidoAmizadeRepository.save(pedido);
+        pedidoRepository.save(pedido);
     }
 
     @Override
     public boolean saoAmigos(Long id1, Long id2) {
+        if (id1 == null || id2 == null || id1.equals(id2)) {
+            return false;
+        }
         return amizadeRepository.findByUsuarioAIdAndUsuarioBId(id1, id2).isPresent() ||
                amizadeRepository.findByUsuarioAIdAndUsuarioBId(id2, id1).isPresent();
     }
-        // Implementar lógica para verificar se são amigos
 
     @Override
     public boolean haPendenteEntre(Long id1, Long id2) {
-        return pedidoAmizadeRepository.findByParAAndParB(id1, id2).isPresent();
+        if (id1 == null || id2 == null || id1.equals(id2)) {
+            return false;
+        }
+        return pedidoRepository.findPedidoPendenteEntre(id1, id2, StatusPedidoAmizade.PENDENTE).isPresent();
     }
-        // Implementar lógica para verificar se há pedido pendente
 
     @Override
+    @Transactional(readOnly = true)
     public List<Usuario> listarMeusAmigos(Long meuId) {
-        List<Amizade> amizades = amizadeRepository.findAllByUsuarioAOrUsuarioB(usuarioRepository.findById(meuId).orElseThrow(), usuarioRepository.findById(meuId).orElseThrow());
+        if (meuId == null) {
+            return List.of();
+        }
+        
+        Usuario usuario = usuarioRepository.findById(meuId)
+            .orElseThrow(() -> new IllegalArgumentException("Usuário não encontrado"));
+        
+        List<Amizade> amizades = amizadeRepository.findAllByUsuarioAOrUsuarioB(usuario, usuario);
+        
         return amizades.stream()
             .flatMap(amizade -> Stream.of(amizade.getUsuarioA(), amizade.getUsuarioB()))
             .distinct()
-            .filter(usuario -> !usuario.getId().equals(meuId))
+            .filter(u -> !u.getId().equals(meuId))
             .collect(Collectors.toList());
     }
-        // Implementar lógica para listar amigos
 
     @Override
     @Transactional(readOnly = true)
     public List<PedidoAmizade> listarRecebidos(Long meuId) {
-        Usuario usuario = usuarioRepository.findById(meuId).orElseThrow();
-        return pedidoAmizadeRepository.findAllByDestinatarioAndStatus(usuario, StatusPedidoAmizade.PENDENTE);
+        if (meuId == null) {
+            return List.of();
+        }
+        return pedidoRepository.findPedidosRecebidosPendentes(meuId, StatusPedidoAmizade.PENDENTE);
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<PedidoAmizade> listarEnviados(Long meuId) {
-        Usuario usuario = usuarioRepository.findById(meuId).orElseThrow();
-        return pedidoAmizadeRepository.findAllBySolicitanteAndStatus(usuario, StatusPedidoAmizade.PENDENTE);
+        if (meuId == null) {
+            return List.of();
+        }
+        return pedidoRepository.findPedidosEnviadosPendentes(meuId, StatusPedidoAmizade.PENDENTE);
     }
-
 }

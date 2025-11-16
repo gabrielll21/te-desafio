@@ -55,6 +55,11 @@ public class DesafioServiceImpl implements DesafioService {
     }
 
     @Override
+    public List<Desafio> listarMeusDesafios(Long idCriador) {
+        return desafioRepository.findByCriadorId(idCriador);
+    }
+
+    @Override
     @Transactional
     public Desafio criar(DesafioFormDTO dto, Long idCriador) {
         Desafio desafio = new Desafio();

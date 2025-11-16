@@ -2,6 +2,7 @@ package com.sistema.desafios.controller;
 
 import com.sistema.desafios.dto.ProfileUpdateDTO;
 import com.sistema.desafios.model.Usuario;
+import com.sistema.desafios.service.FileStorageService;
 import com.sistema.desafios.service.UsuarioService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import jakarta.validation.Valid;
+import java.io.IOException;
 import java.security.Principal;
 
 @Controller
@@ -20,6 +22,9 @@ public class ProfileController {
 
     @Autowired
     private UsuarioService usuarioService;
+
+    @Autowired
+    private FileStorageService fileStorageService;
 
     @GetMapping("/perfil")
     public String getPerfil(Model model, Principal principal) {
@@ -37,6 +42,7 @@ public class ProfileController {
             ProfileUpdateDTO dto = new ProfileUpdateDTO();
             dto.setNome(usuario.getNome());
             model.addAttribute("profileUpdateDTO", dto);
+            model.addAttribute("usuario", usuario);
         }
         return "perfil/editar";
     }
@@ -52,12 +58,29 @@ public class ProfileController {
             Usuario usuario = usuarioService.buscarPorEmail(principal.getName());
             if (usuario != null) {
                 usuario.setNome(profileUpdateDTO.getNome());
-                // TODO: Implementar upload de avatar se necessário
+                
+                // Processar upload de foto de perfil
+                if (profileUpdateDTO.getAvatar() != null && !profileUpdateDTO.getAvatar().isEmpty()) {
+                    // Deletar foto antiga se existir
+                    if (usuario.getFotoPerfil() != null && !usuario.getFotoPerfil().isEmpty()) {
+                        fileStorageService.deletarFotoPerfil(usuario.getFotoPerfil());
+                    }
+                    
+                    // Salvar nova foto
+                    String fotoUrl = fileStorageService.salvarFotoPerfil(profileUpdateDTO.getAvatar(), usuario.getId());
+                    if (fotoUrl != null) {
+                        usuario.setFotoPerfil(fotoUrl);
+                    }
+                }
+                
                 usuarioService.atualizarUsuario(usuario);
                 redirectAttributes.addFlashAttribute("message", "Perfil atualizado com sucesso!");
             } else {
                 redirectAttributes.addFlashAttribute("error", "Usuário não encontrado.");
             }
+        } catch (IOException e) {
+            redirectAttributes.addFlashAttribute("error", "Erro ao fazer upload da foto: " + e.getMessage());
+            return "redirect:/perfil/editar";
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", "Erro ao atualizar o perfil: " + e.getMessage());
             return "redirect:/perfil/editar";

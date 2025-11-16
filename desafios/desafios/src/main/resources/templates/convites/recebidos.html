@@ -19,16 +19,35 @@
                 <div class="card" th:each="convite : ${recebidos}">
                     <div class="card-header">
                         <h3 class="card-title" th:text="${convite.desafio.titulo}">Título do Desafio</h3>
-                        <p style="color: var(--text-secondary); font-size: 0.9rem;">
-                            De: <span th:text="${convite.remetente.nome}">Nome do Remetente</span>
-                        </p>
+                        <div style="margin-top: 0.5rem; padding: 0.75rem; background: rgba(100, 255, 218, 0.1); 
+                             border-radius: var(--border-radius); border-left: 3px solid var(--accent);">
+                            <p style="color: var(--accent); font-weight: 600; margin: 0; font-size: 0.95rem;">
+                                📨 Convite de: <strong th:text="${convite.remetente != null ? convite.remetente.nome : 'Usuário'}">Nome do Remetente</strong>
+                            </p>
+                            <p style="color: var(--text-secondary); font-size: 0.85rem; margin-top: 0.25rem; margin-bottom: 0;">
+                                <span th:text="${convite.remetente != null ? convite.remetente.email : 'N/A'}">email@exemplo.com</span>
+                            </p>
+                        </div>
                     </div>
                     <div class="card-body">
+                        <div style="margin-bottom: 1rem;">
+                            <p style="color: var(--text-secondary); margin-bottom: 0.5rem; font-weight: 500;">Descrição do Desafio:</p>
+                            <p style="color: var(--text-primary); font-size: 0.9rem;" 
+                               th:text="${#strings.abbreviate(convite.desafio.descricao, 200)}">Descrição do desafio...</p>
+                        </div>
                         <p th:if="${convite.mensagem != null and !convite.mensagem.isEmpty()}" 
-                           style="color: var(--text-secondary); margin-bottom: 1rem;"
-                           th:text="${convite.mensagem}">Mensagem</p>
-                        <p style="color: var(--text-muted); font-size: 0.85rem;">
-                            Enviado em: <span th:text="${#temporals.format(convite.criadoEm, 'dd/MM/yyyy HH:mm')}"></span>
+                           style="color: var(--text-secondary); margin-bottom: 1rem; padding: 0.75rem; 
+                                  background: rgba(255, 255, 255, 0.05); border-radius: var(--border-radius); 
+                                  border-left: 3px solid var(--accent); font-style: italic;"
+                           th:text="'💬 ' + ${convite.mensagem}">Mensagem</p>
+                        <div style="display: flex; gap: 1rem; flex-wrap: wrap; font-size: 0.85rem; color: var(--text-muted);">
+                            <span>📅 <span th:text="${#temporals.format(convite.desafio.dataInicio, 'dd/MM/yyyy')}"></span> - 
+                                  <span th:text="${#temporals.format(convite.desafio.dataFinal, 'dd/MM/yyyy')}"></span></span>
+                            <span>⭐ Dificuldade: <strong th:text="${convite.desafio.dificuldade}"></strong>/10</span>
+                            <span>🏆 Pontos: <strong th:text="${convite.desafio.pontuacaoMaxima}"></strong></span>
+                        </div>
+                        <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 1rem;">
+                            📬 Enviado em: <span th:text="${convite.criadoEm != null ? #temporals.format(convite.criadoEm, 'dd/MM/yyyy HH:mm') : 'N/A'}"></span>
                         </p>
                     </div>
                     <div class="card-footer">

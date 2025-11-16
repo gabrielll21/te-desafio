@@ -10,9 +10,8 @@
                 <p class="page-subtitle">Perfil do usuário</p>
             </div>
 
-            <div th:if="${param.error}" class="alert alert-error">
-                <strong>Erro!</strong> <span th:text="${param.error}"></span>
-            </div>
+            <div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
+            <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
 
             <div class="action-buttons">
                 <a th:href="@{/friends/buscar}" class="btn btn-secondary">← Voltar para Busca</a>
@@ -21,8 +20,14 @@
 
             <div class="grid grid-2" style="margin-top: 2rem;">
                 <div class="card">
-                    <div class="card-header">
-                        <h3 class="card-title">Informações do Usuário</h3>
+                    <div class="card-header" style="text-align: center; padding: 2rem 1.5rem;">
+                        <div class="profile-photo-container" style="margin-bottom: 1.5rem;">
+                            <img th:src="${usuario.fotoPerfil != null and !usuario.fotoPerfil.isEmpty() ? usuario.fotoPerfil : '/images/default-avatar.svg'}" 
+                                 alt="Foto de Perfil" 
+                                 class="profile-photo"
+                                 style="width: 150px; height: 150px; border-radius: 50%; object-fit: cover; border: 3px solid var(--accent); box-shadow: 0 4px 15px rgba(100, 255, 218, 0.3);">
+                        </div>
+                        <h3 class="card-title" th:text="${usuario.nome}">Nome do Usuário</h3>
                     </div>
                     <div class="card-body">
                         <div style="margin-bottom: 1.5rem;">

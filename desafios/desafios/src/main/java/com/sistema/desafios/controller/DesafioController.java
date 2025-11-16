@@ -2,7 +2,9 @@ package com.sistema.desafios.controller;
 
 import com.sistema.desafios.model.Desafio;
 import com.sistema.desafios.model.DesafioFormDTO;
+import com.sistema.desafios.model.Usuario;
 import com.sistema.desafios.service.DesafioService;
+import com.sistema.desafios.service.AmizadeService;
 import com.sistema.desafios.repository.CategoriaRepository;
 import com.sistema.desafios.repository.SubcategoriaRepository;
 import com.sistema.desafios.repository.UsuarioRepository;
@@ -15,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.data.domain.Page;
 
 import jakarta.validation.Valid;
+import java.util.List;
 
 @Controller
 @RequestMapping("/desafios")
@@ -22,6 +25,9 @@ public class DesafioController {
 
     @Autowired
     private DesafioService desafioService;
+
+    @Autowired
+    private AmizadeService amizadeService;
 
     @Autowired
     private UsuarioRepository usuarioRepository;
@@ -48,6 +54,18 @@ public class DesafioController {
         model.addAttribute("desafios", desafios);
         model.addAttribute("categorias", categoriaRepository.findAll());
         return "desafios/lista";
+    }
+
+    @GetMapping("/meus")
+    public String meusDesafios(Model model, Authentication auth) {
+        Long idCriador = idUsuarioAtual(auth);
+        List<Desafio> meusDesafios = desafioService.listarMeusDesafios(idCriador);
+        model.addAttribute("desafios", meusDesafios);
+        model.addAttribute("meuId", idCriador);
+        // Buscar amigos para o modal
+        List<Usuario> amigos = amizadeService.listarMeusAmigos(idCriador);
+        model.addAttribute("amigos", amigos);
+        return "desafios/meus";
     }
 
     @GetMapping("/novo")

@@ -1,5 +1,6 @@
 package com.sistema.desafios.model;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -29,4 +30,7 @@ public class Usuario {
     private String senha;
 
     private String role;
+
+    @Column(length = 500)
+    private String fotoPerfil; // URL ou caminho da foto de perfil
 }

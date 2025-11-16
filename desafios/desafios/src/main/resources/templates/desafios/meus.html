@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout :: head}"></head>
+<body>
+    <nav th:replace="~{layout :: navbar}"></nav>
+    <main th:replace="~{layout :: main}">
+        <th:block th:fragment="content">
+            <div class="page-header">
+                <h1 class="page-title">Meus Desafios</h1>
+                <p class="page-subtitle">Gerencie seus desafios e convide amigos</p>
+            </div>
+
+            <div class="action-buttons">
+                <a th:href="@{/desafios/novo}" class="btn btn-primary">➕ Criar Novo Desafio</a>
+                <a th:href="@{/desafios}" class="btn btn-outline">Ver Todos os Desafios</a>
+            </div>
+
+            <div th:if="${desafios != null and !desafios.empty}" class="grid grid-2" style="margin-top: 2rem;">
+                <div class="card" th:each="desafio : ${desafios}">
+                    <div class="card-header">
+                        <h3 class="card-title" th:text="${desafio.titulo}">Título do Desafio</h3>
+                        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 0.5rem;">
+                            <span class="badge badge-primary" th:text="${desafio.categoria.nome}">Categoria</span>
+                            <span class="badge" 
+                                  th:classappend="${desafio.status.name() == 'ATIVO'} ? 'badge-success' : 
+                                                 (${desafio.status.name() == 'ENCERRADO'} ? 'badge-error' : 
+                                                 (${desafio.status.name() == 'ARQUIVADO'} ? 'badge-warning' : 'badge-primary'))"
+                                  th:text="${desafio.status}">Status</span>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <p style="color: var(--text-secondary); margin-bottom: 1rem;" 
+                           th:text="${#strings.abbreviate(desafio.descricao, 150)}">Descrição</p>
+                        <div style="display: flex; gap: 1rem; flex-wrap: wrap; font-size: 0.85rem; color: var(--text-muted);">
+                            <span>📅 <span th:text="${#temporals.format(desafio.dataInicio, 'dd/MM/yyyy')}"></span> - 
+                                  <span th:text="${#temporals.format(desafio.dataFinal, 'dd/MM/yyyy')}"></span></span>
+                            <span>⭐ Dificuldade: <strong th:text="${desafio.dificuldade}"></strong>/10</span>
+                            <span>🏆 Pontos: <strong th:text="${desafio.pontuacaoMaxima}"></strong></span>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <a th:href="@{|/desafios/${desafio.id}|}" class="btn btn-outline btn-sm">Ver Detalhes</a>
+                        <a th:href="@{|/desafios/${desafio.id}/editar|}" class="btn btn-outline btn-sm">✏️ Editar</a>
+                        <button type="button" class="btn btn-primary btn-sm" 
+                                th:onclick="'abrirModalConvidar(' + ${desafio.id} + ')'">
+                            📨 Convidar Amigo
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div th:if="${desafios == null or desafios.empty}" class="empty-state">
+                <div class="empty-state-icon">📋</div>
+                <h3>Você ainda não criou nenhum desafio</h3>
+                <p>Crie seu primeiro desafio e comece a desafiar seus amigos!</p>
+                <a th:href="@{/desafios/novo}" class="btn btn-primary">Criar Primeiro Desafio</a>
+            </div>
+
+            <!-- Modal para convidar amigo -->
+            <div id="modalConvidar" class="modal" style="display: none;">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2>Convidar Amigo para Desafio</h2>
+                        <span class="modal-close" onclick="fecharModalConvidar()">&times;</span>
+                    </div>
+                    <div class="modal-body">
+                        <form id="formConvidar" method="post" th:action="@{/convites/enviar}">
+                            <input type="hidden" id="desafioId" name="desafioId" value="">
+                            
+                            <div class="form-group">
+                                <label for="amigoId" class="form-label">Selecione um amigo</label>
+                                <select id="amigoId" name="toUserId" class="form-select" required>
+                                    <option value="">Selecione um amigo...</option>
+                                    <option th:each="amigo : ${amigos}" 
+                                            th:value="${amigo.id}" 
+                                            th:text="${amigo.nome}">Nome do Amigo</option>
+                                </select>
+                                <p th:if="${amigos == null or amigos.empty}" 
+                                   style="color: var(--text-muted); font-size: 0.85rem; margin-top: 0.5rem;">
+                                    Você ainda não tem amigos. <a th:href="@{/friends/buscar}" style="color: var(--accent);">Adicione amigos</a> para convidá-los!
+                                </p>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="mensagem" class="form-label">Mensagem (opcional)</label>
+                                <textarea id="mensagem" name="mensagem" class="form-input" 
+                                          rows="3" placeholder="Envie uma mensagem personalizada..."></textarea>
+                            </div>
+                            
+                            <div class="action-buttons" style="margin-top: 1.5rem;">
+                                <button type="submit" class="btn btn-primary">📨 Enviar Convite</button>
+                                <button type="button" class="btn btn-secondary" onclick="fecharModalConvidar()">Cancelar</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <style>
+                .modal {
+                    position: fixed;
+                    z-index: 1000;
+                    left: 0;
+                    top: 0;
+                    width: 100%;
+                    height: 100%;
+                    overflow: auto;
+                    background-color: rgba(0, 0, 0, 0.7);
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                }
+
+                .modal-content {
+                    background: var(--bg-secondary);
+                    border-radius: var(--border-radius);
+                    padding: 0;
+                    width: 90%;
+                    max-width: 500px;
+                    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+                }
+
+                .modal-header {
+                    padding: 1.5rem;
+                    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                }
+
+                .modal-header h2 {
+                    margin: 0;
+                    color: var(--text-primary);
+                }
+
+                .modal-close {
+                    color: var(--text-secondary);
+                    font-size: 2rem;
+                    font-weight: bold;
+                    cursor: pointer;
+                    transition: color 0.3s;
+                }
+
+                .modal-close:hover {
+                    color: var(--text-primary);
+                }
+
+                .modal-body {
+                    padding: 1.5rem;
+                }
+            </style>
+
+            <script th:inline="javascript">
+                /*<![CDATA[*/
+                function abrirModalConvidar(desafioId) {
+                    document.getElementById('desafioId').value = desafioId;
+                    document.getElementById('modalConvidar').style.display = 'flex';
+                }
+                
+                function fecharModalConvidar() {
+                    document.getElementById('modalConvidar').style.display = 'none';
+                    document.getElementById('formConvidar').reset();
+                }
+                
+                // Fechar modal ao clicar fora
+                window.onclick = function(event) {
+                    const modal = document.getElementById('modalConvidar');
+                    if (event.target == modal) {
+                        fecharModalConvidar();
+                    }
+                }
+                /*]]>*/
+            </script>
+        </th:block>
+    </main>
+    <footer th:replace="~{layout :: footer}"></footer>
+</body>
+</html>
+
