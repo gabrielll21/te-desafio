@@ -11,4 +11,5 @@ public interface ConviteDesafioService {
     void cancelar(Long idConvite, Long idUsuarioAtual); // só remetente
     List<ConviteDesafio> listarRecebidosPendentes(Long idUsuario);
     List<ConviteDesafio> listarEnviadosPendentes(Long idUsuario);
+    List<ConviteDesafio> listarAceitos(Long idUsuario);
 }

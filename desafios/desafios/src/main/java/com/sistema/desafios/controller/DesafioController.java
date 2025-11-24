@@ -1,8 +1,10 @@
 package com.sistema.desafios.controller;
 
+import com.sistema.desafios.model.ConviteDesafio;
 import com.sistema.desafios.model.Desafio;
 import com.sistema.desafios.model.DesafioFormDTO;
 import com.sistema.desafios.model.Usuario;
+import com.sistema.desafios.service.ConviteDesafioService;
 import com.sistema.desafios.service.DesafioService;
 import com.sistema.desafios.service.AmizadeService;
 import com.sistema.desafios.repository.CategoriaRepository;
@@ -13,11 +15,13 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.transaction.annotation.Transactional;
 
 import org.springframework.data.domain.Page;
 
 import jakarta.validation.Valid;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/desafios")
@@ -37,6 +41,9 @@ public class DesafioController {
 
     @Autowired
     private SubcategoriaRepository subcategoriaRepository;
+
+    @Autowired
+    private ConviteDesafioService conviteDesafioService;
 
     private Long idUsuarioAtual(Authentication auth) {
         return usuarioRepository.findByEmail(auth.getName())
@@ -66,6 +73,27 @@ public class DesafioController {
         List<Usuario> amigos = amizadeService.listarMeusAmigos(idCriador);
         model.addAttribute("amigos", amigos);
         return "desafios/meus";
+    }
+
+    @GetMapping("/todos")
+    @Transactional(readOnly = true)
+    public String todosMeusDesafios(Model model, Authentication auth) {
+        Long usuarioId = idUsuarioAtual(auth);
+        
+        // Desafios criados pelo usuário
+        List<Desafio> desafiosCriados = desafioService.listarMeusDesafios(usuarioId);
+        
+        // Desafios onde o usuário aceitou convite
+        List<ConviteDesafio> convitesAceitos = conviteDesafioService.listarAceitos(usuarioId);
+        List<Desafio> desafiosAceitos = convitesAceitos.stream()
+                .map(ConviteDesafio::getDesafio)
+                .distinct()
+                .collect(Collectors.toList());
+        
+        model.addAttribute("desafiosCriados", desafiosCriados);
+        model.addAttribute("desafiosAceitos", desafiosAceitos);
+        model.addAttribute("meuId", usuarioId);
+        return "desafios/todos";
     }
 
     @GetMapping("/novo")

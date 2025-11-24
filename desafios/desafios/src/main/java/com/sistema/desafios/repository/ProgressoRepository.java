@@ -8,5 +8,6 @@ import java.util.List;
 public interface ProgressoRepository extends JpaRepository<Progresso, Long> {
     List<Progresso> findAllByDesafioIdOrderByCriadoEmAsc(Long desafioId);
     List<Progresso> findAllByUsuarioIdAndDesafioIdOrderByCriadoEmAsc(Long usuarioId, Long desafioId);
+    List<Progresso> findAllByUsuarioId(Long usuarioId);
     long countByUsuarioId(Long usuarioId);
 }

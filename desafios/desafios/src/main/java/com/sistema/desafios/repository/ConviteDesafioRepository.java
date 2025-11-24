@@ -13,4 +13,5 @@ public interface ConviteDesafioRepository extends JpaRepository<ConviteDesafio, 
     List<ConviteDesafio> findAllByRemetenteIdAndStatus(Long remetenteId, StatusConviteDesafio status);
     List<ConviteDesafio> findAllByDestinatarioId(Long destinatarioId);
     List<ConviteDesafio> findAllByRemetenteId(Long remetenteId);
+    List<ConviteDesafio> findAllByDestinatarioIdAndStatusOrderByCriadoEmDesc(Long destinatarioId, StatusConviteDesafio status);
 }

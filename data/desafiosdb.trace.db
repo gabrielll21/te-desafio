@@ -1,4 +1,4 @@
-2025-11-16 15:11:13.071582-03:00 jdbc[3]: exception
+2025-11-24 16:14:23.799770-03:00 jdbc[3]: exception
 org.h2.jdbc.JdbcSQLSyntaxErrorException: Column "USUARIOA" not found; SQL statement:
 alter table if exists amizade add constraint UKshfluk1lhin84emluwitmco4t unique (usuarioa, usuariob) [42122-232]
 	at org.h2.message.DbException.getJdbcSQLException(DbException.java:514)
@@ -55,7 +55,7 @@ alter table if exists amizade add constraint UKshfluk1lhin84emluwitmco4t unique 
 	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1361)
 	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1350)
 	at com.sistema.desafios.DesafiosApplication.main(DesafiosApplication.java:10)
-2025-11-16 15:57:57.143702-03:00 jdbc[3]: exception
+2025-11-24 16:19:55.852008-03:00 jdbc[3]: exception
 org.h2.jdbc.JdbcSQLSyntaxErrorException: Column "USUARIOA" not found; SQL statement:
 alter table if exists amizade add constraint UKshfluk1lhin84emluwitmco4t unique (usuarioa, usuariob) [42122-232]
 	at org.h2.message.DbException.getJdbcSQLException(DbException.java:514)
@@ -112,7 +112,7 @@ alter table if exists amizade add constraint UKshfluk1lhin84emluwitmco4t unique 
 	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1361)
 	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1350)
 	at com.sistema.desafios.DesafiosApplication.main(DesafiosApplication.java:10)
-2025-11-16 16:05:10.594415-03:00 jdbc[3]: exception
+2025-11-24 16:24:58.965447-03:00 jdbc[3]: exception
 org.h2.jdbc.JdbcSQLSyntaxErrorException: Column "USUARIOA" not found; SQL statement:
 alter table if exists amizade add constraint UKshfluk1lhin84emluwitmco4t unique (usuarioa, usuariob) [42122-232]
 	at org.h2.message.DbException.getJdbcSQLException(DbException.java:514)
@@ -169,7 +169,7 @@ alter table if exists amizade add constraint UKshfluk1lhin84emluwitmco4t unique 
 	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1361)
 	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1350)
 	at com.sistema.desafios.DesafiosApplication.main(DesafiosApplication.java:10)
-2025-11-16 16:23:38.368075-03:00 jdbc[3]: exception
+2025-11-24 16:27:05.990149-03:00 jdbc[3]: exception
 org.h2.jdbc.JdbcSQLSyntaxErrorException: Column "USUARIOA" not found; SQL statement:
 alter table if exists amizade add constraint UKshfluk1lhin84emluwitmco4t unique (usuarioa, usuariob) [42122-232]
 	at org.h2.message.DbException.getJdbcSQLException(DbException.java:514)

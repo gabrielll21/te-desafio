@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout :: head}"></head>
+<body>
+    <nav th:replace="~{layout :: navbar}"></nav>
+    <main th:replace="~{layout :: main}">
+        <th:block th:fragment="content">
+            <div class="page-header">
+                <h1 class="page-title">Todos os Meus Desafios</h1>
+                <p class="page-subtitle">Desafios que você criou e desafios que você está participando</p>
+            </div>
+
+            <div class="action-buttons">
+                <a th:href="@{/desafios/novo}" class="btn btn-primary">➕ Criar Novo Desafio</a>
+                <a th:href="@{/desafios/meus}" class="btn btn-outline">Apenas Criados</a>
+                <a th:href="@{/desafios}" class="btn btn-secondary">Ver Todos os Desafios</a>
+            </div>
+
+            <!-- Desafios Criados -->
+            <div th:if="${desafiosCriados != null and !desafiosCriados.empty}" style="margin-top: 2rem;">
+                <h2 style="color: var(--text-primary); margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid var(--accent);">
+                    🎯 Desafios que Você Criou
+                </h2>
+                <div class="grid grid-2">
+                    <div class="card" th:each="desafio : ${desafiosCriados}">
+                        <div class="card-header">
+                            <h3 class="card-title" th:text="${desafio.titulo}">Título do Desafio</h3>
+                            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 0.5rem;">
+                                <span class="badge badge-primary" th:text="${desafio.categoria.nome}">Categoria</span>
+                                <span class="badge badge-success">Você criou</span>
+                                <span class="badge" 
+                                      th:classappend="${desafio.status.name() == 'ATIVO'} ? 'badge-success' : 
+                                                     (${desafio.status.name() == 'ENCERRADO'} ? 'badge-error' : 
+                                                     (${desafio.status.name() == 'ARQUIVADO'} ? 'badge-warning' : 'badge-primary'))"
+                                      th:text="${desafio.status}">Status</span>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <p style="color: var(--text-secondary); margin-bottom: 1rem;" 
+                               th:text="${#strings.abbreviate(desafio.descricao, 150)}">Descrição</p>
+                            <div style="display: flex; gap: 1rem; flex-wrap: wrap; font-size: 0.85rem; color: var(--text-muted);">
+                                <span>📅 <span th:text="${#temporals.format(desafio.dataInicio, 'dd/MM/yyyy')}"></span> - 
+                                      <span th:text="${#temporals.format(desafio.dataFinal, 'dd/MM/yyyy')}"></span></span>
+                                <span>⭐ Dificuldade: <strong th:text="${desafio.dificuldade}"></strong>/10</span>
+                                <span>🏆 Pontos: <strong th:text="${desafio.pontuacaoMaxima}"></strong></span>
+                            </div>
+                        </div>
+                        <div class="card-footer">
+                            <a th:href="@{|/desafios/${desafio.id}|}" class="btn btn-outline btn-sm">Ver Detalhes</a>
+                            <a th:href="@{|/desafios/${desafio.id}/editar|}" class="btn btn-outline btn-sm">✏️ Editar</a>
+                            <a th:href="@{|/desafios/${desafio.id}/progresso|}" class="btn btn-primary btn-sm">📊 Ver Progresso</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Desafios Aceitos/Participando -->
+            <div th:if="${desafiosAceitos != null and !desafiosAceitos.empty}" style="margin-top: 3rem;">
+                <h2 style="color: var(--text-primary); margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid var(--accent);">
+                    🎮 Desafios que Você Está Participando
+                </h2>
+                <div class="grid grid-2">
+                    <div class="card" th:each="desafio : ${desafiosAceitos}">
+                        <div class="card-header">
+                            <h3 class="card-title" th:text="${desafio.titulo}">Título do Desafio</h3>
+                            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 0.5rem;">
+                                <span class="badge badge-primary" th:text="${desafio.categoria.nome}">Categoria</span>
+                                <span class="badge badge-info">Você aceitou</span>
+                                <span style="color: var(--text-secondary); font-size: 0.85rem;">
+                                    Criado por: <strong th:text="${desafio.criador.nome}"></strong>
+                                </span>
+                                <span class="badge" 
+                                      th:classappend="${desafio.status.name() == 'ATIVO'} ? 'badge-success' : 
+                                                     (${desafio.status.name() == 'ENCERRADO'} ? 'badge-error' : 
+                                                     (${desafio.status.name() == 'ARQUIVADO'} ? 'badge-warning' : 'badge-primary'))"
+                                      th:text="${desafio.status}">Status</span>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <p style="color: var(--text-secondary); margin-bottom: 1rem;" 
+                               th:text="${#strings.abbreviate(desafio.descricao, 150)}">Descrição</p>
+                            <div style="display: flex; gap: 1rem; flex-wrap: wrap; font-size: 0.85rem; color: var(--text-muted);">
+                                <span>📅 <span th:text="${#temporals.format(desafio.dataInicio, 'dd/MM/yyyy')}"></span> - 
+                                      <span th:text="${#temporals.format(desafio.dataFinal, 'dd/MM/yyyy')}"></span></span>
+                                <span>⭐ Dificuldade: <strong th:text="${desafio.dificuldade}"></strong>/10</span>
+                                <span>🏆 Pontos: <strong th:text="${desafio.pontuacaoMaxima}"></strong></span>
+                            </div>
+                        </div>
+                        <div class="card-footer">
+                            <a th:href="@{|/desafios/${desafio.id}|}" class="btn btn-outline btn-sm">Ver Detalhes</a>
+                            <a th:href="@{|/desafios/${desafio.id}/progresso|}" class="btn btn-primary btn-sm">📊 Ver/Registrar Progresso</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Estado vazio -->
+            <div th:if="${(desafiosCriados == null or desafiosCriados.empty) and (desafiosAceitos == null or desafiosAceitos.empty)}" class="empty-state">
+                <div class="empty-state-icon">📋</div>
+                <h3>Você ainda não tem desafios</h3>
+                <p>Crie um desafio ou aceite um convite de desafio para começar!</p>
+                <div style="display: flex; gap: 1rem; justify-content: center; margin-top: 1.5rem;">
+                    <a th:href="@{/desafios/novo}" class="btn btn-primary">Criar Primeiro Desafio</a>
+                    <a th:href="@{/convites/recebidos}" class="btn btn-secondary">Ver Convites Recebidos</a>
+                </div>
+            </div>
+        </th:block>
+    </main>
+    <footer th:replace="~{layout :: footer}"></footer>
+</body>
+</html>
+

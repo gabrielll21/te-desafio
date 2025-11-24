@@ -1,15 +1,18 @@
 package com.sistema.desafios.controller;
 
+import com.sistema.desafios.model.Desafio;
 import com.sistema.desafios.model.PedidoAmizade;
 import com.sistema.desafios.model.Usuario;
 import com.sistema.desafios.repository.UsuarioRepository;
 import com.sistema.desafios.service.AmizadeService;
+import com.sistema.desafios.service.DesafioService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -23,18 +26,25 @@ public class AmizadeController {
     @Autowired
     private UsuarioRepository usuarioRepository;
 
+    @Autowired
+    private DesafioService desafioService;
+
     // Listar meus amigos
     @GetMapping
+    @Transactional(readOnly = true)
     public String listarAmigos(Model model, Authentication auth) {
         try {
             Long usuarioId = getIdUsuarioAtual(auth);
             List<Usuario> amigos = amizadeService.listarMeusAmigos(usuarioId);
-            model.addAttribute("amigos", amigos);
+            List<Desafio> meusDesafios = desafioService.listarMeusDesafios(usuarioId);
+            model.addAttribute("amigos", amigos != null ? amigos : List.of());
+            model.addAttribute("meusDesafios", meusDesafios != null ? meusDesafios : List.of());
             return "friends/list";
         } catch (Exception e) {
             e.printStackTrace();
             model.addAttribute("error", "Erro ao carregar amigos: " + e.getMessage());
             model.addAttribute("amigos", List.of());
+            model.addAttribute("meusDesafios", List.of());
             return "friends/list";
         }
     }

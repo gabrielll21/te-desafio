@@ -110,4 +110,9 @@ public class ConviteDesafioServiceImpl implements ConviteDesafioService {
     public List<ConviteDesafio> listarEnviadosPendentes(Long idUsuario) {
         return conviteDesafioRepository.findAllByRemetenteIdAndStatus(idUsuario, StatusConviteDesafio.PENDENTE);
     }
+
+    @Override
+    public List<ConviteDesafio> listarAceitos(Long idUsuario) {
+        return conviteDesafioRepository.findAllByDestinatarioIdAndStatusOrderByCriadoEmDesc(idUsuario, StatusConviteDesafio.ACEITO);
+    }
 }

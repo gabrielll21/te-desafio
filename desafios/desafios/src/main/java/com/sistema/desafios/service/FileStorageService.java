@@ -16,21 +16,12 @@ public class FileStorageService {
     private static final String UPLOAD_DIR = "uploads/profiles/";
     
     private Path getUploadPath() throws IOException {
-        // Tentar usar o diretório de recursos estáticos
-        try {
-            Path staticPath = Paths.get("src/main/resources/static/" + UPLOAD_DIR);
-            if (!Files.exists(staticPath)) {
-                Files.createDirectories(staticPath);
-            }
-            return staticPath;
-        } catch (Exception e) {
-            // Fallback: usar diretório temporário ou do projeto
-            Path uploadPath = Paths.get(System.getProperty("user.dir"), "uploads", "profiles");
-            if (!Files.exists(uploadPath)) {
-                Files.createDirectories(uploadPath);
-            }
-            return uploadPath;
+        // Usar o diretório de recursos estáticos (relativo ao projeto)
+        Path staticPath = Paths.get("src/main/resources/static/" + UPLOAD_DIR);
+        if (!Files.exists(staticPath)) {
+            Files.createDirectories(staticPath);
         }
+        return staticPath;
     }
 
     public String salvarFotoPerfil(MultipartFile file, Long usuarioId) throws IOException {
@@ -66,17 +57,10 @@ public class FileStorageService {
             // Remover barra inicial se existir
             String path = fotoUrl.startsWith("/") ? fotoUrl.substring(1) : fotoUrl;
             
-            // Tentar diferentes caminhos possíveis
-            Path[] possiblePaths = {
-                Paths.get("src/main/resources/static/" + path),
-                Paths.get(System.getProperty("user.dir"), path)
-            };
-            
-            for (Path filePath : possiblePaths) {
-                if (Files.exists(filePath)) {
-                    Files.delete(filePath);
-                    break;
-                }
+            // Tentar deletar do diretório de recursos estáticos
+            Path filePath = Paths.get("src/main/resources/static/" + path);
+            if (Files.exists(filePath)) {
+                Files.delete(filePath);
             }
         } catch (IOException e) {
             // Log do erro, mas não interromper o processo

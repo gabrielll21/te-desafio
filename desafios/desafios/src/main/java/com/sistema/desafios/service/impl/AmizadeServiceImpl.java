@@ -159,10 +159,8 @@ public class AmizadeServiceImpl implements AmizadeService {
             return List.of();
         }
         
-        Usuario usuario = usuarioRepository.findById(meuId)
-            .orElseThrow(() -> new IllegalArgumentException("Usuário não encontrado"));
-        
-        List<Amizade> amizades = amizadeRepository.findAllByUsuarioAOrUsuarioB(usuario, usuario);
+        // Usar query com JOIN FETCH para carregar os usuários junto com as amizades
+        List<Amizade> amizades = amizadeRepository.findAllByUsuarioIdWithUsers(meuId);
         
         return amizades.stream()
             .flatMap(amizade -> Stream.of(amizade.getUsuarioA(), amizade.getUsuarioB()))
