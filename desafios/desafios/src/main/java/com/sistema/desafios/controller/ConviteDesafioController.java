@@ -29,10 +29,17 @@ public class ConviteDesafioController {
 
     @GetMapping("/recebidos")
     public String listarRecebidos(Model model, Authentication auth) {
-        Long idUsuario = idUsuarioAtual(auth);
-        List<ConviteDesafio> recebidos = conviteDesafioService.listarRecebidosPendentes(idUsuario);
-        model.addAttribute("recebidos", recebidos);
-        return "convites/recebidos"; // Nome da view
+        try {
+            Long idUsuario = idUsuarioAtual(auth);
+            List<ConviteDesafio> recebidos = conviteDesafioService.listarRecebidosPendentes(idUsuario);
+            model.addAttribute("recebidos", recebidos != null ? recebidos : List.of());
+            return "convites/recebidos";
+        } catch (Exception e) {
+            e.printStackTrace();
+            model.addAttribute("recebidos", List.of());
+            model.addAttribute("error", "Erro ao carregar convites: " + e.getMessage());
+            return "convites/recebidos";
+        }
     }
 
     @GetMapping("/enviados")

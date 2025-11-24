@@ -15,6 +15,10 @@
                 <a th:href="@{/desafios}" class="btn btn-secondary">Ver Todos os Desafios</a>
             </div>
 
+            <div th:if="${error != null}" class="alert alert-error" style="margin-bottom: 1.5rem;">
+                <strong>Erro:</strong> <span th:text="${error}"></span>
+            </div>
+
             <div th:if="${recebidos != null and !recebidos.empty}" class="grid grid-2">
                 <div class="card" th:each="convite : ${recebidos}">
                     <div class="card-header">

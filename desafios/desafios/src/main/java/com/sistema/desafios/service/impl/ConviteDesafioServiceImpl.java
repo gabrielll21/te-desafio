@@ -102,16 +102,19 @@ public class ConviteDesafioServiceImpl implements ConviteDesafioService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<ConviteDesafio> listarRecebidosPendentes(Long idUsuario) {
         return conviteDesafioRepository.findAllByDestinatarioIdAndStatus(idUsuario, StatusConviteDesafio.PENDENTE);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<ConviteDesafio> listarEnviadosPendentes(Long idUsuario) {
         return conviteDesafioRepository.findAllByRemetenteIdAndStatus(idUsuario, StatusConviteDesafio.PENDENTE);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<ConviteDesafio> listarAceitos(Long idUsuario) {
         return conviteDesafioRepository.findAllByDestinatarioIdAndStatusOrderByCriadoEmDesc(idUsuario, StatusConviteDesafio.ACEITO);
     }
